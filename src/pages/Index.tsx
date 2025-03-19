@@ -5,7 +5,9 @@ import { getFutureBookings, Booking } from "@/data/bookings";
 import { rooms } from "@/data/rooms";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
-import { CalendarIcon, ClockIcon } from "lucide-react";
+import { CalendarIcon, ClockIcon, CheckCircle, Users, MapPin, BookOpen } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const [myBookings, setMyBookings] = useState<Booking[]>([]);
@@ -32,56 +34,116 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-3xl font-bold mb-2">Conference Room Booking</h1>
-          <p className="text-gray-600 mb-6">Book your meeting space easily</p>
-          
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">Floor Plan</h2>
-            <p className="text-gray-600 mb-4">Rooms are grouped by area. Click on a room to view details and make a booking</p>
-            
-            <div className="overflow-auto">
-              <FloorPlan />
-            </div>
-          </div>
-          
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Your Upcoming Bookings</h2>
-            {myBookings.length > 0 ? (
-              <ScrollArea className="h-[250px] rounded-md border">
-                <div className="p-4 space-y-4">
-                  {myBookings.map(booking => (
-                    <div 
-                      key={booking.id}
-                      className="p-3 border rounded-lg bg-gray-50 hover:bg-gray-100 transition"
-                    >
-                      <div className="font-medium">{getRoomName(booking.roomId)}</div>
-                      <div className="text-sm text-gray-600">{booking.purpose}</div>
-                      <div className="mt-2 flex flex-col sm:flex-row sm:gap-4 text-xs text-gray-500">
-                        <div className="flex items-center">
-                          <CalendarIcon className="h-3 w-3 mr-1" />
-                          {format(booking.startTime, "MMMM d, yyyy")}
-                        </div>
-                        <div className="flex items-center">
-                          <ClockIcon className="h-3 w-3 mr-1" />
-                          {format(booking.startTime, "h:mm a")} - {format(booking.endTime, "h:mm a")}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <p>You have no upcoming bookings</p>
-                <p className="text-sm mt-2">Click on a room in the floor plan to make a booking</p>
-              </div>
-            )}
-          </div>
+    <div className="min-h-screen bg-secondary/50">
+      {/* Church-like header */}
+      <div className="church-header">
+        <div className="container mx-auto flex flex-col items-center md:items-start">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">GK Brooklyn</h1>
+          <p className="text-white/90 text-lg">Facility Booking System</p>
         </div>
       </div>
+      
+      <div className="container mx-auto px-4 py-8">
+        <Tabs defaultValue="floorplan" className="w-full">
+          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
+            <TabsTrigger value="floorplan" className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              Floor Plan
+            </TabsTrigger>
+            <TabsTrigger value="bookings" className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              Your Bookings
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="floorplan" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  Facility Floor Plan
+                </CardTitle>
+                <CardDescription>
+                  Click on a room to make a booking or hover to see details
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-white p-4 rounded-md border shadow-sm overflow-auto">
+                  <FloorPlan />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="bookings" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CalendarIcon className="h-5 w-5 text-primary" />
+                  Your Upcoming Bookings
+                </CardTitle>
+                <CardDescription>
+                  Manage your facility reservations
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {myBookings.length > 0 ? (
+                  <ScrollArea className="h-[350px] rounded-md border">
+                    <div className="p-4 space-y-3">
+                      {myBookings.map(booking => (
+                        <div 
+                          key={booking.id}
+                          className="p-4 border rounded-md bg-white hover:bg-gray-50 transition flex flex-col sm:flex-row gap-4 items-start sm:items-center"
+                        >
+                          <div className="rounded-full bg-primary/10 p-3 text-primary">
+                            <Users className="h-5 w-5" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-lg">{getRoomName(booking.roomId)}</div>
+                            <div className="text-sm text-gray-600">{booking.purpose}</div>
+                            <div className="mt-2 flex flex-col sm:flex-row sm:gap-4 text-xs text-gray-500">
+                              <div className="flex items-center">
+                                <CalendarIcon className="h-3 w-3 mr-1" />
+                                {format(booking.startTime, "MMMM d, yyyy")}
+                              </div>
+                              <div className="flex items-center">
+                                <ClockIcon className="h-3 w-3 mr-1" />
+                                {format(booking.startTime, "h:mm a")} - {format(booking.endTime, "h:mm a")}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="shrink-0">
+                            <div className="flex items-center text-green-600 text-sm">
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Confirmed
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                ) : (
+                  <div className="text-center py-12 border rounded-md bg-white">
+                    <BookOpen className="h-12 w-12 mx-auto text-gray-300 mb-3" />
+                    <h3 className="text-lg font-medium text-gray-900">No Bookings Yet</h3>
+                    <p className="text-sm text-gray-500 max-w-md mx-auto mt-2">
+                      You don't have any upcoming bookings. Click on a room in the floor plan to make your first reservation.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+      
+      <footer className="bg-primary text-white py-6 mt-12">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-white/80 text-sm">
+            &copy; {new Date().getFullYear()} GK Brooklyn Facility Management System
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
