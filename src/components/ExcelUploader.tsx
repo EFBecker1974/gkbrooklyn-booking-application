@@ -8,7 +8,8 @@ import { useToast } from '@/components/ui/use-toast';
 
 interface RoomUpdate {
   id: string;
-  description: string;
+  description?: string;
+  capacity?: number;
 }
 
 export const ExcelUploader = () => {
@@ -43,10 +44,11 @@ export const ExcelUploader = () => {
       // Convert to JSON
       const jsonData = XLSX.utils.sheet_to_json<any>(worksheet);
       
-      // Process the data - expect columns: id, description
+      // Process the data - expect columns: id, description, capacity
       const updates: RoomUpdate[] = jsonData.map(row => ({
         id: row.id?.toString() || '',
-        description: row.description || ''
+        description: row.description,
+        capacity: row.capacity ? Number(row.capacity) : undefined
       }));
       
       // Check for valid data
@@ -56,20 +58,45 @@ export const ExcelUploader = () => {
       
       // Update rooms in the data store
       let updatedCount = 0;
+      let capacityUpdatedCount = 0;
+      let descriptionUpdatedCount = 0;
+      
       updates.forEach(update => {
-        if (update.id && update.description) {
+        if (update.id) {
           const roomIndex = rooms.findIndex(room => room.id === update.id);
           if (roomIndex !== -1) {
-            rooms[roomIndex].description = update.description;
-            updatedCount++;
+            let updated = false;
+            
+            if (update.description) {
+              rooms[roomIndex].description = update.description;
+              descriptionUpdatedCount++;
+              updated = true;
+            }
+            
+            if (update.capacity !== undefined) {
+              rooms[roomIndex].capacity = update.capacity;
+              capacityUpdatedCount++;
+              updated = true;
+            }
+            
+            if (updated) updatedCount++;
           }
         }
       });
       
       // Show success message
+      let successMessage = `Updated ${updatedCount} rooms`;
+      if (descriptionUpdatedCount > 0 && capacityUpdatedCount > 0) {
+        successMessage += ` (${descriptionUpdatedCount} descriptions, ${capacityUpdatedCount} capacities)`;
+      } else if (descriptionUpdatedCount > 0) {
+        successMessage += ` (${descriptionUpdatedCount} descriptions)`;
+      } else if (capacityUpdatedCount > 0) {
+        successMessage += ` (${capacityUpdatedCount} capacities)`;
+      }
+      
       toast({
         title: "Rooms updated successfully",
-        description: `Updated descriptions for ${updatedCount} rooms`,
+        description: successMessage,
       });
       
       // Clear the file input
@@ -91,10 +118,10 @@ export const ExcelUploader = () => {
 
   return (
     <div className="space-y-4 p-4 border rounded-lg bg-white shadow-sm">
-      <h3 className="text-lg font-medium">Update Room Descriptions</h3>
+      <h3 className="text-lg font-medium">Update Room Information</h3>
       <p className="text-sm text-muted-foreground">
-        Upload an Excel file with room IDs and descriptions to update room information.
-        The Excel file should have columns: <code>id</code> and <code>description</code>.
+        Upload an Excel file with room details to update information.
+        The Excel file should have columns: <code>id</code>, <code>description</code>, and <code>capacity</code>.
       </p>
       
       <div className="flex flex-col sm:flex-row gap-4">
@@ -128,7 +155,7 @@ export const ExcelUploader = () => {
         <div className="text-xs text-muted-foreground max-h-40 overflow-y-auto border p-2 rounded">
           {rooms.map(room => (
             <div key={room.id} className="mb-1">
-              <strong>{room.id}</strong>: {room.name} ({room.area})
+              <strong>{room.id}</strong>: {room.name} ({room.area}) - Capacity: {room.capacity}
             </div>
           ))}
         </div>
