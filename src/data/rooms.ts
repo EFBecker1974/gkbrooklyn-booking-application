@@ -18,7 +18,7 @@ export const rooms: Room[] = [
   {
     id: "room-1",
     name: "Motorhuis",
-    capacity: 20, // Updated capacity from 4 to 20
+    capacity: 20, // Updated capacity
     amenities: ["Storage space", "Workshop area"],
     description: "Hierdie lokaal het 'n groot konferensie tafel waar 8 mense gemaklik om die tafel kan sit. Hierdie lokaal kan 11 tot 20 mense akkommodeer",
     area: "Pastorie",
@@ -27,7 +27,7 @@ export const rooms: Room[] = [
   {
     id: "room-2",
     name: "Pooltafel",
-    capacity: 8,
+    capacity: 10, // Updated capacity
     amenities: ["Pool table", "Seating area", "Refreshment corner"],
     description: "Hierdie area het 'n pool-tafel in en is oopplan met die kombuis. 10 Mense kan gemaklik saam kuier. Slegs 7 stoele.  Hierdie lokaal kan 7-10 mense akkommodeer",
     area: "Pastorie",
@@ -36,7 +36,7 @@ export const rooms: Room[] = [
   {
     id: "room-3",
     name: "Taffeltennis",
-    capacity: 6,
+    capacity: 10, // Updated capacity
     amenities: ["Table tennis table", "Scoreboard", "Storage cabinet"],
     description: "Hierdie area het 'n tafeltennis-blad wat kan opslaan. Daar is sitplek vir 6. Hierdie lokaal kan 7-10 mense akkommodeer",
     area: "Pastorie",
@@ -45,7 +45,7 @@ export const rooms: Room[] = [
   {
     id: "room-4",
     name: "Kombuis",
-    capacity: 10,
+    capacity: 10, // Updated capacity
     amenities: ["Full kitchen", "Island counter", "Dining area"],
     description: "Die kombuisarea het 'n tafel in maar nie stoele nie. Hierdie lokaal kan 7-10 mense akkommodeer",
     area: "Pastorie",
@@ -54,7 +54,7 @@ export const rooms: Room[] = [
   {
     id: "room-5",
     name: "Bybelstudielokaal",
-    capacity: 15,
+    capacity: 20, // Updated capacity
     amenities: ["Whiteboard", "Bookshelves", "Study tables"],
     description: "Room designed for Bible study sessions and discussions",
     area: "Pastorie",
@@ -63,7 +63,7 @@ export const rooms: Room[] = [
   {
     id: "room-6",
     name: "Studeerlokaal",
-    capacity: 8,
+    capacity: 20, // Updated capacity
     amenities: ["Desk space", "Reference materials", "Quiet environment"],
     description: "Study room with resources for individual or small group learning",
     area: "Pastorie",
@@ -72,7 +72,7 @@ export const rooms: Room[] = [
   {
     id: "room-7",
     name: "Tafeltennisarea",
-    capacity: 10,
+    capacity: 10, // Updated capacity
     amenities: ["Multiple table tennis tables", "Seating area", "Water cooler"],
     description: "Larger area for table tennis tournaments and group activities",
     area: "Pastorie",
@@ -81,7 +81,7 @@ export const rooms: Room[] = [
   {
     id: "room-8",
     name: "Kafee",
-    capacity: 20,
+    capacity: 20, // Updated capacity
     amenities: ["Coffee machine", "Seating area", "Snack counter"],
     description: "Casual space for refreshments and informal gatherings",
     area: "Kerksaal",
@@ -90,7 +90,7 @@ export const rooms: Room[] = [
   {
     id: "room-9",
     name: "Bybelstudielokaal",
-    capacity: 12,
+    capacity: 10, // Updated capacity
     amenities: ["Bookshelves", "Whiteboard", "Study tables"],
     description: "Dedicated room for Bible study and discussion groups",
     area: "Kerksaal",
@@ -99,7 +99,7 @@ export const rooms: Room[] = [
   {
     id: "room-10",
     name: "Kerksaal",
-    capacity: 50,
+    capacity: 150, // Updated capacity
     amenities: ["Sound system", "Projector", "Stage area", "Flexible seating"],
     description: "Large multipurpose hall for church gatherings and events",
     area: "Kerksaal",
@@ -108,7 +108,7 @@ export const rooms: Room[] = [
   {
     id: "room-11",
     name: "Kombuis",
-    capacity: 8,
+    capacity: 6, // Updated capacity
     amenities: ["Full kitchen", "Refrigerator", "Serving area"],
     description: "Die kombuisarea het 'n tafel in maar nie stoele nie. Hierdie lokaal kan 7-10 mense akkommodeer",
     area: "Kerksaal",
@@ -117,7 +117,7 @@ export const rooms: Room[] = [
   {
     id: "room-12",
     name: "Kerkkantoor",
-    capacity: 4,
+    capacity: 6, // Updated capacity
     amenities: ["Desks", "Filing cabinets", "Printer"],
     description: "Administrative office for church staff",
     area: "Kerksaal",
@@ -126,7 +126,7 @@ export const rooms: Room[] = [
   {
     id: "room-13",
     name: "Konsistorie",
-    capacity: 10,
+    capacity: 20, // Updated capacity
     amenities: ["Projector", "Whiteboard", "Sound system"],
     description: "Meeting room for leadership gatherings",
     area: "Kerkgebou",
@@ -135,7 +135,7 @@ export const rooms: Room[] = [
   {
     id: "room-14",
     name: "Langs liturgie area",
-    capacity: 20,
+    capacity: 10, // Updated capacity
     amenities: ["Sound system", "Video conferencing", "Piano"],
     description: "Multi-purpose space adjacent to worship area",
     area: "Kerkgebou",
@@ -144,7 +144,7 @@ export const rooms: Room[] = [
   {
     id: "room-15",
     name: "Gesinskamer",
-    capacity: 15,
+    capacity: 20, // Updated capacity
     amenities: ["TV Screen", "Comfortable seating", "Children's play area"],
     description: "Family-friendly room for community gatherings",
     area: "Kerkgebou",
