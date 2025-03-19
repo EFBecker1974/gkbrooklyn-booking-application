@@ -61,28 +61,38 @@ export const ExcelUploader = () => {
       let capacityUpdatedCount = 0;
       let descriptionUpdatedCount = 0;
       
+      console.log("Updates to process:", updates);
+      
       updates.forEach(update => {
         if (update.id) {
           const roomIndex = rooms.findIndex(room => room.id === update.id);
           if (roomIndex !== -1) {
             let updated = false;
             
-            if (update.description) {
+            console.log(`Found room ${update.id} at index ${roomIndex}`);
+            
+            if (update.description !== undefined) {
+              console.log(`Updating description for room ${update.id}:`, update.description);
               rooms[roomIndex].description = update.description;
               descriptionUpdatedCount++;
               updated = true;
             }
             
             if (update.capacity !== undefined) {
+              console.log(`Updating capacity for room ${update.id}:`, update.capacity);
               rooms[roomIndex].capacity = update.capacity;
               capacityUpdatedCount++;
               updated = true;
             }
             
             if (updated) updatedCount++;
+          } else {
+            console.log(`Room with id ${update.id} not found`);
           }
         }
       });
+      
+      console.log("Updated rooms:", rooms);
       
       // Show success message
       let successMessage = `Updated ${updatedCount} rooms`;
@@ -94,10 +104,19 @@ export const ExcelUploader = () => {
         successMessage += ` (${capacityUpdatedCount} capacities)`;
       }
       
-      toast({
-        title: "Rooms updated successfully",
-        description: successMessage,
-      });
+      // If no updates were made but we had valid data, show a warning
+      if (updatedCount === 0 && updates.length > 0) {
+        toast({
+          title: "No rooms were updated",
+          description: "Check that your room IDs match those in the system",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Rooms updated successfully",
+          description: successMessage,
+        });
+      }
       
       // Clear the file input
       setFile(null);
@@ -158,6 +177,33 @@ export const ExcelUploader = () => {
               <strong>{room.id}</strong>: {room.name} ({room.area}) - Capacity: {room.capacity}
             </div>
           ))}
+        </div>
+      </div>
+      
+      <div className="mt-4 border-t pt-4">
+        <h4 className="text-sm font-medium mb-2">Sample Excel Structure:</h4>
+        <div className="overflow-x-auto">
+          <table className="min-w-full border text-xs">
+            <thead>
+              <tr className="bg-muted">
+                <th className="border px-2 py-1">id</th>
+                <th className="border px-2 py-1">description</th>
+                <th className="border px-2 py-1">capacity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border px-2 py-1">room-1</td>
+                <td className="border px-2 py-1">Updated description text</td>
+                <td className="border px-2 py-1">25</td>
+              </tr>
+              <tr>
+                <td className="border px-2 py-1">room-2</td>
+                <td className="border px-2 py-1">Another description update</td>
+                <td className="border px-2 py-1">15</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
