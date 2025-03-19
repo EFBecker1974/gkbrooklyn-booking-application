@@ -7,7 +7,6 @@ import { BookingForm } from "./BookingForm";
 import { CalendarIcon, Users, Clock, Info, MapPin, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { Card } from "@/components/ui/card";
 
 interface RoomItemProps {
@@ -22,117 +21,47 @@ export const RoomItem = ({ room, onBookingUpdate }: RoomItemProps) => {
   
   return (
     <>
-      <HoverCard>
-        <HoverCardTrigger asChild>
-          <div 
-            className={`cursor-pointer rounded-md p-4 flex flex-col shadow-md hover:shadow-lg transition-all h-full ${isBooked ? 'room-booked' : 'room-available'}`}
-            onClick={() => setIsDialogOpen(true)}
-          >
-            <div className="font-semibold text-sm mb-1">{room.name}</div>
-            <div className="text-xs text-gray-700 mb-2">{room.description}</div>
-            
-            <div className="flex items-center text-xs gap-1 mt-1">
-              <Users className="h-3 w-3 text-primary" />
-              <span>Capacity: {room.capacity}</span>
+      <div 
+        className={`cursor-pointer rounded-md p-4 flex flex-col shadow-md hover:shadow-lg transition-all h-full ${isBooked ? 'room-booked' : 'room-available'}`}
+        onClick={() => setIsDialogOpen(true)}
+      >
+        <div className="font-semibold text-sm mb-1">{room.name}</div>
+        <div className="text-xs text-gray-700 mb-2">{room.description}</div>
+        
+        <div className="flex items-center text-xs gap-1 mt-1">
+          <Users className="h-3 w-3 text-primary" />
+          <span>Capacity: {room.capacity}</span>
+        </div>
+        
+        <div className="mt-auto pt-3">
+          {isBooked && bookingInfo ? (
+            <div className="space-y-1 mt-1 bg-white p-2 rounded text-xs">
+              <div className="flex items-center gap-1">
+                <CalendarIcon className="h-3 w-3 text-primary" />
+                <span>{format(bookingInfo.startTime, "MMM d, yyyy")}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Clock className="h-3 w-3 text-primary" />
+                <span>
+                  {format(bookingInfo.startTime, "h:mm a")} - {format(bookingInfo.endTime, "h:mm a")}
+                </span>
+              </div>
+              <div className="text-xs mt-1">
+                <span className="font-medium">Booked by: </span>{bookingInfo.bookedBy}
+              </div>
             </div>
-            
-            <div className="mt-auto pt-3">
-              {isBooked && bookingInfo ? (
-                <div className="space-y-1 mt-1 bg-white p-2 rounded text-xs">
-                  <div className="flex items-center gap-1">
-                    <CalendarIcon className="h-3 w-3 text-primary" />
-                    <span>{format(bookingInfo.startTime, "MMM d, yyyy")}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3 text-primary" />
-                    <span>
-                      {format(bookingInfo.startTime, "h:mm a")} - {format(bookingInfo.endTime, "h:mm a")}
-                    </span>
-                  </div>
-                  <div className="text-xs mt-1">
-                    <span className="font-medium">Booked by: </span>{bookingInfo.bookedBy}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-xs text-green-700 font-medium mt-1 flex items-center">
-                  <CheckCircle className="h-3 w-3 mr-1" /> 
-                  Available now
-                </div>
-              )}
-              
-              <Badge variant={isBooked ? "destructive" : "outline"} className="text-[10px] h-4 mt-2 border-primary">
-                {isBooked ? 'Booked' : 'Available'}
-              </Badge>
+          ) : (
+            <div className="text-xs text-green-700 font-medium mt-1 flex items-center">
+              <CheckCircle className="h-3 w-3 mr-1" /> 
+              Available now
             </div>
-          </div>
-        </HoverCardTrigger>
-        <HoverCardContent className="w-80 p-0 bg-white shadow-lg rounded-md overflow-hidden border border-gray-200">
-          <div className={`${isBooked ? 'bg-red-500' : 'bg-primary'} text-white p-3`}>
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-white">{room.name}</h3>
-              <Badge variant={isBooked ? "destructive" : "outline"} className="bg-white text-xs">
-                {isBooked ? 'Booked' : 'Available'}
-              </Badge>
-            </div>
-          </div>
+          )}
           
-          <div className="p-4 space-y-3">
-            <p className="text-sm">{room.description}</p>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-primary" />
-                <span className="text-sm">Capacity: {room.capacity} people</span>
-              </div>
-              
-              <div className="flex flex-wrap gap-1">
-                {room.amenities.map((amenity, i) => (
-                  <Badge key={i} variant="outline" className="text-xs border-primary/30 text-primary">
-                    {amenity}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            
-            {isBooked && bookingInfo ? (
-              <Card className="mt-2 bg-gray-50">
-                <div className="p-3">
-                  <h4 className="font-semibold text-sm mb-1 text-primary flex items-center gap-1">
-                    <Info className="h-3 w-3" /> Booking Details
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <CalendarIcon className="h-4 w-4 text-primary" />
-                      <span>{format(bookingInfo.startTime, "MMM d, yyyy")}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-primary" />
-                      <span>
-                        {format(bookingInfo.startTime, "h:mm a")} - {format(bookingInfo.endTime, "h:mm a")}
-                      </span>
-                    </div>
-                    <div className="mt-1">
-                      <div className="font-medium text-xs text-gray-500">Booked by:</div>
-                      <div className="text-sm">{bookingInfo.bookedBy}</div>
-                    </div>
-                    <div>
-                      <div className="font-medium text-xs text-gray-500">Purpose:</div>
-                      <div className="text-sm">{bookingInfo.purpose}</div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ) : (
-              <div className="border-t pt-3 mt-2">
-                <p className="text-green-600 font-medium flex items-center text-sm">
-                  <CheckCircle className="h-4 w-4 mr-1" />
-                  This room is currently available for booking
-                </p>
-              </div>
-            )}
-          </div>
-        </HoverCardContent>
-      </HoverCard>
+          <Badge variant={isBooked ? "destructive" : "outline"} className="text-[10px] h-4 mt-2 border-primary">
+            {isBooked ? 'Booked' : 'Available'}
+          </Badge>
+        </div>
+      </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">

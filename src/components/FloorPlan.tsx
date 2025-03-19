@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { rooms, getRoomsByArea } from "@/data/rooms";
 import { isRoomBooked } from "@/data/bookings";
 import { RoomItem } from "./RoomItem";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@radix-ui/react-dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { BookingForm } from "./BookingForm";
 
 interface FloorPlanProps {
@@ -30,17 +31,20 @@ export const FloorPlan = ({ refreshTrigger = 0, onBookingSuccess }: FloorPlanPro
     }
   };
 
+  const getRoomName = (roomId) => {
+    const room = rooms.find(r => r.id === roomId);
+    return room ? room.name : "Room";
+  };
+
   return (
     <div className="relative">
       {selectedRoom && (
         <Dialog open={!!selectedRoom} onOpenChange={(open) => !open && setSelectedRoom(null)}>
           <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Book {getRoomName(selectedRoom)}</DialogTitle>
-              <DialogDescription>
-                Reserve {getRoomName(selectedRoom)} for your upcoming event.
-              </DialogDescription>
-            </DialogHeader>
+            <DialogTitle>Book {getRoomName(selectedRoom)}</DialogTitle>
+            <DialogDescription>
+              Reserve {getRoomName(selectedRoom)} for your upcoming event.
+            </DialogDescription>
             <BookingForm roomId={selectedRoom} onSuccess={handleBookingSuccess} />
           </DialogContent>
         </Dialog>
