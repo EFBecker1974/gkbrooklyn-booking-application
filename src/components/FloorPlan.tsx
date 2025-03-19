@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { getRoomsByArea } from "@/data/rooms";
 import { RoomItem } from "./RoomItem";
+import { ExcelUploader } from "./ExcelUploader";
 
 export const FloorPlan = () => {
   const [refreshFlag, setRefreshFlag] = useState(0);
@@ -22,6 +23,8 @@ export const FloorPlan = () => {
   
   return (
     <div className="space-y-8">
+      <ExcelUploader />
+      
       {Object.entries(roomsByArea).map(([area, rooms]) => (
         <div key={area} className="mb-8 border rounded-lg overflow-hidden shadow-sm">
           <h3 className="text-lg font-semibold p-4 bg-primary text-white">
