@@ -84,9 +84,16 @@ const Auth = () => {
     <div className="min-h-screen flex flex-col bg-secondary/50">
       {/* Church-like header */}
       <div className="church-header">
-        <div className="container mx-auto flex flex-col items-center md:items-start">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">GK Brooklyn</h1>
-          <p className="text-white/90 text-lg">Facility Booking System</p>
+        <div className="container mx-auto flex items-center gap-4">
+          <img 
+            src="/lovable-uploads/5c3be42e-32ad-42fd-a26c-8bcaad72b8eb.png" 
+            alt="GK Brooklyn Logo" 
+            className="h-16 w-auto"
+          />
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">GK Brooklyn</h1>
+            <p className="text-white/90 text-lg">Facility Booking System</p>
+          </div>
         </div>
       </div>
       

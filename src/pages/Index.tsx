@@ -74,9 +74,16 @@ const Index = () => {
       {/* Church-like header with user nav */}
       <div className="church-header">
         <div className="container mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">GK Brooklyn</h1>
-            <p className="text-white/90 text-lg">Facility Booking System</p>
+          <div className="flex items-center gap-4">
+            <img 
+              src="/lovable-uploads/5c3be42e-32ad-42fd-a26c-8bcaad72b8eb.png" 
+              alt="GK Brooklyn Logo" 
+              className="h-16 w-auto"
+            />
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">GK Brooklyn</h1>
+              <p className="text-white/90 text-lg">Facility Booking System</p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <UserNav />
