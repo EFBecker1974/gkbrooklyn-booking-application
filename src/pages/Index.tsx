@@ -4,7 +4,7 @@ import { getFutureBookings, Booking, getUserBookings, cancelBooking } from "@/da
 import { rooms } from "@/data/rooms";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
-import { CalendarIcon, ClockIcon, CheckCircle, Users, MapPin, BookOpen, XCircle, FileSpreadsheet } from "lucide-react";
+import { CalendarIcon, ClockIcon, CheckCircle, Users, MapPin, BookOpen, XCircle, FileSpreadsheet, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserNav } from "@/components/UserNav";
@@ -22,6 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const Index = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -172,8 +173,8 @@ const Index = () => {
                                 onClick={() => setBookingToCancel(booking.id)}
                                 className="flex items-center gap-1"
                               >
-                                <XCircle className="h-4 w-4" />
-                                Cancel
+                                <Trash2 className="h-4 w-4" />
+                                Cancel Booking
                               </Button>
                             </div>
                           </div>
@@ -242,3 +243,4 @@ const Index = () => {
 };
 
 export default Index;
+
