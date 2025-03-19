@@ -20,7 +20,7 @@ export const rooms: Room[] = [
     name: "Motorhuis",
     capacity: 4,
     amenities: ["Storage space", "Workshop area"],
-    description: "Garage area with space for activities and storage",
+    description: "Hierdie lokaal het 'n groot konferensie tafel waar 8 mense gemaklik om die tafel kan sit. Hierdie lokaal kan 11 tot 20 mense akkommodeer",
     area: "Pastorie",
     position: { x: 50, y: 50, width: 150, height: 120 }
   },
