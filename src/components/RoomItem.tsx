@@ -4,7 +4,7 @@ import { Room } from "@/data/rooms";
 import { isRoomBooked, getRoomBookingInfo } from "@/data/bookings";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { BookingForm } from "./BookingForm";
-import { CalendarIcon, Users, Clock, Info, MapPin, CheckCircle, XCircle } from "lucide-react";
+import { CalendarIcon, Users, Clock, Info, MapPin, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
@@ -20,36 +20,25 @@ export const RoomItem = ({ room, onBookingUpdate }: RoomItemProps) => {
   const isBooked = isRoomBooked(room.id);
   const bookingInfo = getRoomBookingInfo(room.id);
   
-  // Calculate dynamic height based on content
-  const minHeight = room.position.height;
-  
   return (
     <>
       <HoverCard>
         <HoverCardTrigger asChild>
           <div 
-            className={`absolute cursor-pointer rounded-md p-3 flex flex-col shadow-md hover:shadow-lg transition-all ${isBooked ? 'room-booked' : 'room-available'}`}
-            style={{
-              left: `${room.position.x}px`,
-              top: `${room.position.y}px`,
-              width: `${room.position.width}px`,
-              minHeight: `${minHeight}px`,
-              height: "auto",
-              overflowY: "auto"
-            }}
+            className={`cursor-pointer rounded-md p-4 flex flex-col shadow-md hover:shadow-lg transition-all h-full ${isBooked ? 'room-booked' : 'room-available'}`}
             onClick={() => setIsDialogOpen(true)}
           >
             <div className="font-semibold text-sm mb-1">{room.name}</div>
-            <div className="text-xs text-gray-700 mb-2 line-clamp-2">{room.description}</div>
+            <div className="text-xs text-gray-700 mb-2">{room.description}</div>
             
-            <div className="mt-auto space-y-1">
-              <div className="flex items-center text-xs gap-1">
-                <Users className="h-3 w-3 text-primary" />
-                <span>{room.capacity}</span>
-              </div>
-              
+            <div className="flex items-center text-xs gap-1 mt-1">
+              <Users className="h-3 w-3 text-primary" />
+              <span>Capacity: {room.capacity}</span>
+            </div>
+            
+            <div className="mt-auto pt-3">
               {isBooked && bookingInfo ? (
-                <div className="space-y-1 mt-1 bg-white p-1 rounded text-xs">
+                <div className="space-y-1 mt-1 bg-white p-2 rounded text-xs">
                   <div className="flex items-center gap-1">
                     <CalendarIcon className="h-3 w-3 text-primary" />
                     <span>{format(bookingInfo.startTime, "MMM d, yyyy")}</span>
@@ -60,6 +49,9 @@ export const RoomItem = ({ room, onBookingUpdate }: RoomItemProps) => {
                       {format(bookingInfo.startTime, "h:mm a")} - {format(bookingInfo.endTime, "h:mm a")}
                     </span>
                   </div>
+                  <div className="text-xs mt-1">
+                    <span className="font-medium">Booked by: </span>{bookingInfo.bookedBy}
+                  </div>
                 </div>
               ) : (
                 <div className="text-xs text-green-700 font-medium mt-1 flex items-center">
@@ -68,7 +60,7 @@ export const RoomItem = ({ room, onBookingUpdate }: RoomItemProps) => {
                 </div>
               )}
               
-              <Badge variant={isBooked ? "destructive" : "outline"} className="text-[10px] h-4 mt-1 border-primary">
+              <Badge variant={isBooked ? "destructive" : "outline"} className="text-[10px] h-4 mt-2 border-primary">
                 {isBooked ? 'Booked' : 'Available'}
               </Badge>
             </div>
