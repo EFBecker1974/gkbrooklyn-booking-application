@@ -44,12 +44,30 @@ export const rooms: Room[] = [
   },
   {
     id: "room-4",
-    name: "Innovation Lab",
-    capacity: 16,
-    amenities: ["Projector", "Whiteboard", "Video conferencing", "Sound system"],
-    description: "Large space for workshops and creative sessions",
+    name: "Konsistorie",
+    capacity: 10,
+    amenities: ["Projector", "Whiteboard", "Sound system"],
+    description: "Meeting room for leadership gatherings",
     area: "Kerkgebou",
-    position: { x: 220, y: 250, width: 230, height: 120 }
+    position: { x: 220, y: 250, width: 180, height: 120 }
+  },
+  {
+    id: "room-5",
+    name: "Langs liturgie area",
+    capacity: 20,
+    amenities: ["Sound system", "Video conferencing", "Piano"],
+    description: "Multi-purpose space adjacent to worship area",
+    area: "Kerkgebou",
+    position: { x: 420, y: 250, width: 200, height: 120 }
+  },
+  {
+    id: "room-6",
+    name: "Gesinskamer",
+    capacity: 15,
+    amenities: ["TV Screen", "Comfortable seating", "Children's play area"],
+    description: "Family-friendly room for community gatherings",
+    area: "Kerkgebou",
+    position: { x: 220, y: 390, width: 180, height: 130 }
   },
 ];
 
