@@ -26,15 +26,15 @@ export const FloorPlan = () => {
   const maxY = Math.max(...allRooms.map(room => room.position.y + room.position.height));
   
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {Object.entries(roomsByArea).map(([area, rooms]) => (
-        <div key={area} className="mb-6">
-          <h3 className="text-lg font-semibold mb-3 text-gray-800 border-b pb-2">{area}</h3>
+        <div key={area} className="mb-8">
+          <h3 className="text-lg font-semibold mb-4 text-gray-800 border-b pb-2">{area}</h3>
           <div 
-            className="relative bg-gray-100 border rounded-lg shadow-inner"
+            className="relative bg-gray-100 border rounded-lg shadow-inner p-4"
             style={{ 
-              width: `${maxX + 50}px`, 
-              height: `${maxY + 50}px`,
+              width: `${maxX + 70}px`, 
+              height: `${maxY + 70}px`,
               maxWidth: '100%',
               overflow: 'auto'
             }}

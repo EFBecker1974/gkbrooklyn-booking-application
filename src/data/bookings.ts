@@ -38,6 +38,18 @@ export const isRoomBooked = (roomId: string): boolean => {
   );
 };
 
+// Get current booking information for a room if it exists
+export const getRoomBookingInfo = (roomId: string): Booking | null => {
+  const now = new Date();
+  const bookings = getFutureBookings();
+  
+  return bookings.find(booking => 
+    booking.roomId === roomId && 
+    booking.startTime <= now && 
+    booking.endTime > now
+  ) || null;
+};
+
 // Check if a room is available for a specific time slot
 export const isTimeSlotAvailable = (roomId: string, startTime: Date, endTime: Date): boolean => {
   const bookings = getFutureBookings();

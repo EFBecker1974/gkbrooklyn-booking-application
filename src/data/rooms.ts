@@ -1,3 +1,4 @@
+
 export interface Room {
   id: string;
   name: string;
@@ -21,7 +22,7 @@ export const rooms: Room[] = [
     amenities: ["Storage space", "Workshop area"],
     description: "Garage area with space for activities and storage",
     area: "Pastorie",
-    position: { x: 50, y: 50, width: 100, height: 100 }
+    position: { x: 50, y: 50, width: 150, height: 120 }
   },
   {
     id: "room-2",
@@ -30,7 +31,7 @@ export const rooms: Room[] = [
     amenities: ["Pool table", "Seating area", "Refreshment corner"],
     description: "Recreation room with pool table for leisure activities",
     area: "Pastorie",
-    position: { x: 160, y: 50, width: 120, height: 100 }
+    position: { x: 210, y: 50, width: 150, height: 120 }
   },
   {
     id: "room-3",
@@ -39,7 +40,7 @@ export const rooms: Room[] = [
     amenities: ["Table tennis table", "Scoreboard", "Storage cabinet"],
     description: "Space dedicated for table tennis activities",
     area: "Pastorie",
-    position: { x: 290, y: 50, width: 120, height: 100 }
+    position: { x: 370, y: 50, width: 150, height: 120 }
   },
   {
     id: "room-4",
@@ -48,7 +49,7 @@ export const rooms: Room[] = [
     amenities: ["Full kitchen", "Island counter", "Dining area"],
     description: "Fully equipped kitchen area for meal preparation",
     area: "Pastorie",
-    position: { x: 420, y: 50, width: 130, height: 100 }
+    position: { x: 530, y: 50, width: 150, height: 120 }
   },
   {
     id: "room-5",
@@ -57,7 +58,7 @@ export const rooms: Room[] = [
     amenities: ["Whiteboard", "Bookshelves", "Study tables"],
     description: "Room designed for Bible study sessions and discussions",
     area: "Pastorie",
-    position: { x: 50, y: 160, width: 150, height: 120 }
+    position: { x: 50, y: 180, width: 150, height: 120 }
   },
   {
     id: "room-6",
@@ -66,7 +67,7 @@ export const rooms: Room[] = [
     amenities: ["Desk space", "Reference materials", "Quiet environment"],
     description: "Study room with resources for individual or small group learning",
     area: "Pastorie",
-    position: { x: 210, y: 160, width: 150, height: 120 }
+    position: { x: 210, y: 180, width: 150, height: 120 }
   },
   {
     id: "room-7",
@@ -75,7 +76,7 @@ export const rooms: Room[] = [
     amenities: ["Multiple table tennis tables", "Seating area", "Water cooler"],
     description: "Larger area for table tennis tournaments and group activities",
     area: "Pastorie",
-    position: { x: 370, y: 160, width: 180, height: 120 }
+    position: { x: 370, y: 180, width: 150, height: 120 }
   },
   {
     id: "room-8",
@@ -84,7 +85,7 @@ export const rooms: Room[] = [
     amenities: ["Coffee machine", "Seating area", "Snack counter"],
     description: "Casual space for refreshments and informal gatherings",
     area: "Kerksaal",
-    position: { x: 50, y: 250, width: 120, height: 100 }
+    position: { x: 50, y: 340, width: 150, height: 120 }
   },
   {
     id: "room-9",
@@ -93,7 +94,7 @@ export const rooms: Room[] = [
     amenities: ["Bookshelves", "Whiteboard", "Study tables"],
     description: "Dedicated room for Bible study and discussion groups",
     area: "Kerksaal",
-    position: { x: 180, y: 250, width: 120, height: 100 }
+    position: { x: 210, y: 340, width: 150, height: 120 }
   },
   {
     id: "room-10",
@@ -102,7 +103,7 @@ export const rooms: Room[] = [
     amenities: ["Sound system", "Projector", "Stage area", "Flexible seating"],
     description: "Large multipurpose hall for church gatherings and events",
     area: "Kerksaal",
-    position: { x: 310, y: 250, width: 140, height: 120 }
+    position: { x: 370, y: 340, width: 150, height: 120 }
   },
   {
     id: "room-11",
@@ -111,7 +112,7 @@ export const rooms: Room[] = [
     amenities: ["Full kitchen", "Refrigerator", "Serving area"],
     description: "Kitchen facility for meal preparation and catering",
     area: "Kerksaal",
-    position: { x: 460, y: 250, width: 100, height: 100 }
+    position: { x: 530, y: 340, width: 150, height: 120 }
   },
   {
     id: "room-12",
@@ -120,7 +121,7 @@ export const rooms: Room[] = [
     amenities: ["Desks", "Filing cabinets", "Printer"],
     description: "Administrative office for church staff",
     area: "Kerksaal",
-    position: { x: 570, y: 250, width: 100, height: 100 }
+    position: { x: 690, y: 340, width: 150, height: 120 }
   },
   {
     id: "room-13",
@@ -129,7 +130,7 @@ export const rooms: Room[] = [
     amenities: ["Projector", "Whiteboard", "Sound system"],
     description: "Meeting room for leadership gatherings",
     area: "Kerkgebou",
-    position: { x: 220, y: 390, width: 180, height: 120 }
+    position: { x: 210, y: 480, width: 150, height: 120 }
   },
   {
     id: "room-14",
@@ -138,7 +139,7 @@ export const rooms: Room[] = [
     amenities: ["Sound system", "Video conferencing", "Piano"],
     description: "Multi-purpose space adjacent to worship area",
     area: "Kerkgebou",
-    position: { x: 420, y: 390, width: 200, height: 120 }
+    position: { x: 370, y: 480, width: 150, height: 120 }
   },
   {
     id: "room-15",
@@ -147,7 +148,7 @@ export const rooms: Room[] = [
     amenities: ["TV Screen", "Comfortable seating", "Children's play area"],
     description: "Family-friendly room for community gatherings",
     area: "Kerkgebou",
-    position: { x: 320, y: 530, width: 180, height: 130 }
+    position: { x: 530, y: 480, width: 150, height: 120 }
   },
 ];
 
