@@ -8,10 +8,15 @@ import { format } from "date-fns";
 import { CalendarIcon, ClockIcon, CheckCircle, Users, MapPin, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserNav } from "@/components/UserNav";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/components/AuthProvider";
 
 const Index = () => {
   const [myBookings, setMyBookings] = useState<Booking[]>([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const { user } = useAuth();
 
   useEffect(() => {
     // Set a periodic refresh for bookings
@@ -35,11 +40,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-secondary/50">
-      {/* Church-like header */}
+      {/* Church-like header with user nav */}
       <div className="church-header">
-        <div className="container mx-auto flex flex-col items-center md:items-start">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">GK Brooklyn</h1>
-          <p className="text-white/90 text-lg">Facility Booking System</p>
+        <div className="container mx-auto flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">GK Brooklyn</h1>
+            <p className="text-white/90 text-lg">Facility Booking System</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <UserNav />
+          </div>
         </div>
       </div>
       
