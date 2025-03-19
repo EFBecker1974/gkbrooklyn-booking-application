@@ -10,6 +10,7 @@ import { CalendarIcon, Clock, Sun, Moon, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, addHours, setHours, setMinutes, addMinutes } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/components/AuthProvider";
 
 interface BookingFormProps {
   roomId: string;
@@ -26,11 +27,16 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
   const [date, setDate] = useState<Date>(new Date());
   const [startHour, setStartHour] = useState("9");
   const [duration, setDuration] = useState<DurationType>("1");
-  const [name, setName] = useState("");
   const [purpose, setPurpose] = useState("");
+  const { user } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user || !user.email) {
+      console.error("User not authenticated");
+      return;
+    }
     
     // Create start time by setting the hour from the selected hour
     let startTime = setMinutes(setHours(date, parseInt(startHour)), 0);
@@ -69,7 +75,7 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
       roomId,
       startTime,
       endTime,
-      bookedBy: name,
+      bookedBy: user.email,
       purpose
     });
     
@@ -192,17 +198,6 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
             </SelectItem>
           </SelectContent>
         </Select>
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="name">Your Name</Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Enter your name"
-          required
-        />
       </div>
       
       <div className="space-y-2">

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { FloorPlan } from "@/components/FloorPlan";
 import { getFutureBookings, Booking, getUserBookings, cancelBooking } from "@/data/bookings";
@@ -30,7 +31,7 @@ const Index = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
   const { user } = useAuth();
-  const userName = user?.email || "";
+  const userEmail = user?.email || "";
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -44,13 +45,15 @@ const Index = () => {
     const allBookings = getFutureBookings();
     setBookings(allBookings);
     
-    if (userName) {
-      const userBookings = getUserBookings(userName);
+    if (userEmail) {
+      const userBookings = getUserBookings(userEmail);
       setMyBookings(userBookings);
+      console.log("Fetched user bookings:", userBookings.length, "for user:", userEmail);
     } else {
       setMyBookings([]);
+      console.log("No user email found, cleared bookings");
     }
-  }, [refreshTrigger, userName]);
+  }, [refreshTrigger, userEmail]);
 
   const getRoomName = (roomId: string) => {
     const room = rooms.find(r => r.id === roomId);
@@ -58,13 +61,18 @@ const Index = () => {
   };
 
   const handleCancelBooking = () => {
-    if (bookingToCancel && userName) {
-      const success = cancelBooking(bookingToCancel, userName);
+    if (bookingToCancel && userEmail) {
+      const success = cancelBooking(bookingToCancel, userEmail);
       if (success) {
         setRefreshTrigger(prev => prev + 1);
       }
       setBookingToCancel(null);
     }
+  };
+
+  // This function is called when a booking is made from FloorPlan
+  const handleBookingSuccess = () => {
+    setRefreshTrigger(prev => prev + 1);
   };
 
   return (
@@ -118,7 +126,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <div className="bg-white p-4 rounded-md border shadow-sm overflow-auto">
-                  <FloorPlan refreshTrigger={refreshTrigger} />
+                  <FloorPlan refreshTrigger={refreshTrigger} onBookingSuccess={handleBookingSuccess} />
                 </div>
               </CardContent>
             </Card>
@@ -243,4 +251,3 @@ const Index = () => {
 };
 
 export default Index;
-
