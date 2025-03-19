@@ -47,7 +47,7 @@ export const rooms: Room[] = [
     name: "Kombuis",
     capacity: 10,
     amenities: ["Full kitchen", "Island counter", "Dining area"],
-    description: "Fully equipped kitchen area for meal preparation",
+    description: "Die kombuisarea het 'n tafel in maar nie stoele nie. Hierdie lokaal kan 7-10 mense akkommodeer",
     area: "Pastorie",
     position: { x: 530, y: 50, width: 150, height: 120 }
   },
@@ -110,7 +110,7 @@ export const rooms: Room[] = [
     name: "Kombuis",
     capacity: 8,
     amenities: ["Full kitchen", "Refrigerator", "Serving area"],
-    description: "Kitchen facility for meal preparation and catering",
+    description: "Die kombuisarea het 'n tafel in maar nie stoele nie. Hierdie lokaal kan 7-10 mense akkommodeer",
     area: "Kerksaal",
     position: { x: 530, y: 340, width: 150, height: 120 }
   },
