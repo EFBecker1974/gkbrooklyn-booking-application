@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Clock } from "lucide-react";
+import { CalendarIcon, Clock, Sun, Moon, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format, addHours, setHours, setMinutes } from "date-fns";
+import { format, addHours, setHours, setMinutes, addMinutes } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface BookingFormProps {
@@ -16,10 +16,16 @@ interface BookingFormProps {
   onSuccess: () => void;
 }
 
+type DurationType = 
+  | "1" | "2" | "3" | "4" // hours
+  | "half-day-am" 
+  | "half-day-pm" 
+  | "full-day";
+
 export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
   const [date, setDate] = useState<Date>(new Date());
   const [startHour, setStartHour] = useState("9");
-  const [duration, setDuration] = useState("1");
+  const [duration, setDuration] = useState<DurationType>("1");
   const [name, setName] = useState("");
   const [purpose, setPurpose] = useState("");
 
@@ -27,10 +33,37 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
     e.preventDefault();
     
     // Create start time by setting the hour from the selected hour
-    const startTime = setMinutes(setHours(date, parseInt(startHour)), 0);
+    let startTime = setMinutes(setHours(date, parseInt(startHour)), 0);
+    let endTime: Date;
     
-    // Create end time by adding the duration to the start time
-    const endTime = addHours(startTime, parseInt(duration));
+    // Calculate end time based on duration type
+    switch(duration) {
+      case "1":
+      case "2":
+      case "3":
+      case "4":
+        // Hours - add the selected number of hours
+        endTime = addHours(startTime, parseInt(duration));
+        break;
+      case "half-day-am":
+        // Morning half day (9:00 AM - 1:00 PM)
+        startTime = setHours(date, 9);
+        endTime = setHours(date, 13);
+        break;
+      case "half-day-pm":
+        // Afternoon half day (1:00 PM - 5:00 PM)
+        startTime = setHours(date, 13);
+        endTime = setHours(date, 17);
+        break;
+      case "full-day":
+        // Full day (9:00 AM - 5:00 PM)
+        startTime = setHours(date, 9);
+        endTime = setHours(date, 17);
+        break;
+      default:
+        // Default 1 hour
+        endTime = addHours(startTime, 1);
+    }
     
     const success = bookRoom({
       roomId,
@@ -54,11 +87,8 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
     };
   });
 
-  // Generate duration options (1 to 4 hours)
-  const durations = [1, 2, 3, 4].map(h => ({
-    value: h.toString(),
-    label: `${h} hour${h > 1 ? 's' : ''}`
-  }));
+  // Only show start time field if duration is hourly
+  const isHourlyDuration = ["1", "2", "3", "4"].includes(duration);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -91,36 +121,75 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
           </Popover>
         </div>
         
-        <div className="space-y-2">
-          <Label htmlFor="start-time">Start Time</Label>
-          <Select value={startHour} onValueChange={setStartHour}>
-            <SelectTrigger id="start-time">
-              <Clock className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="Select start time" />
-            </SelectTrigger>
-            <SelectContent>
-              {hours.map((hour) => (
-                <SelectItem key={hour.value} value={hour.value}>
-                  {hour.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {isHourlyDuration && (
+          <div className="space-y-2">
+            <Label htmlFor="start-time">Start Time</Label>
+            <Select value={startHour} onValueChange={setStartHour}>
+              <SelectTrigger id="start-time">
+                <Clock className="mr-2 h-4 w-4" />
+                <SelectValue placeholder="Select start time" />
+              </SelectTrigger>
+              <SelectContent>
+                {hours.map((hour) => (
+                  <SelectItem key={hour.value} value={hour.value}>
+                    {hour.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
       
       <div className="space-y-2">
         <Label htmlFor="duration">Duration</Label>
-        <Select value={duration} onValueChange={setDuration}>
+        <Select value={duration} onValueChange={(value) => setDuration(value as DurationType)}>
           <SelectTrigger id="duration">
             <SelectValue placeholder="Select duration" />
           </SelectTrigger>
           <SelectContent>
-            {durations.map((duration) => (
-              <SelectItem key={duration.value} value={duration.value}>
-                {duration.label}
-              </SelectItem>
-            ))}
+            <SelectItem value="1">
+              <div className="flex items-center">
+                <Clock className="mr-2 h-4 w-4" />
+                <span>1 hour</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="2">
+              <div className="flex items-center">
+                <Clock className="mr-2 h-4 w-4" />
+                <span>2 hours</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="3">
+              <div className="flex items-center">
+                <Clock className="mr-2 h-4 w-4" />
+                <span>3 hours</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="4">
+              <div className="flex items-center">
+                <Clock className="mr-2 h-4 w-4" />
+                <span>4 hours</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="half-day-am">
+              <div className="flex items-center">
+                <Sun className="mr-2 h-4 w-4" />
+                <span>Half Day (Morning: 9AM - 1PM)</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="half-day-pm">
+              <div className="flex items-center">
+                <Moon className="mr-2 h-4 w-4" />
+                <span>Half Day (Afternoon: 1PM - 5PM)</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="full-day">
+              <div className="flex items-center">
+                <CalendarDays className="mr-2 h-4 w-4" />
+                <span>Full Day (9AM - 5PM)</span>
+              </div>
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
