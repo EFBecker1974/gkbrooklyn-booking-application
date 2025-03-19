@@ -26,7 +26,7 @@ export const FloorPlan = () => {
       <ExcelUploader />
       
       {Object.entries(roomsByArea).map(([area, rooms]) => (
-        <div key={area} className="mb-8 border rounded-lg overflow-hidden shadow-sm">
+        <div key={`${area}-${refreshFlag}`} className="mb-8 border rounded-lg overflow-hidden shadow-sm">
           <h3 className="text-lg font-semibold p-4 bg-primary text-white">
             {area}
           </h3>
@@ -34,7 +34,7 @@ export const FloorPlan = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {rooms.map(room => (
                 <RoomItem 
-                  key={room.id} 
+                  key={`${room.id}-${refreshFlag}`} 
                   room={room} 
                   onBookingUpdate={handleBookingUpdate}
                 />
