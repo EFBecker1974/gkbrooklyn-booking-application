@@ -1,22 +1,35 @@
 
 import { useState, useEffect } from "react";
 import { FloorPlan } from "@/components/FloorPlan";
-import { getFutureBookings, Booking } from "@/data/bookings";
+import { getFutureBookings, Booking, getUserBookings, cancelBooking } from "@/data/bookings";
 import { rooms } from "@/data/rooms";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
-import { CalendarIcon, ClockIcon, CheckCircle, Users, MapPin, BookOpen } from "lucide-react";
+import { CalendarIcon, ClockIcon, CheckCircle, Users, MapPin, BookOpen, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserNav } from "@/components/UserNav";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 
 const Index = () => {
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [myBookings, setMyBookings] = useState<Booking[]>([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
   const { user } = useAuth();
+  const userName = user?.email || "";
 
   useEffect(() => {
     // Set a periodic refresh for bookings
@@ -28,14 +41,32 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
-    // Load user's bookings
+    // Load all bookings and user's bookings
     const allBookings = getFutureBookings();
-    setMyBookings(allBookings);
-  }, [refreshTrigger]);
+    setBookings(allBookings);
+    
+    if (userName) {
+      const userBookings = getUserBookings(userName);
+      setMyBookings(userBookings);
+    } else {
+      setMyBookings([]);
+    }
+  }, [refreshTrigger, userName]);
 
   const getRoomName = (roomId: string) => {
     const room = rooms.find(r => r.id === roomId);
     return room ? room.name : "Unknown Room";
+  };
+
+  const handleCancelBooking = () => {
+    if (bookingToCancel && userName) {
+      const success = cancelBooking(bookingToCancel, userName);
+      if (success) {
+        // Refresh bookings after cancellation
+        setRefreshTrigger(prev => prev + 1);
+      }
+      setBookingToCancel(null);
+    }
   };
 
   return (
@@ -79,7 +110,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <div className="bg-white p-4 rounded-md border shadow-sm overflow-auto">
-                  <FloorPlan />
+                  <FloorPlan refreshTrigger={refreshTrigger} />
                 </div>
               </CardContent>
             </Card>
@@ -123,9 +154,20 @@ const Index = () => {
                             </div>
                           </div>
                           <div className="shrink-0">
-                            <div className="flex items-center text-green-600 text-sm">
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Confirmed
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center text-green-600 text-sm">
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Confirmed
+                              </div>
+                              <Button 
+                                variant="destructive" 
+                                size="sm"
+                                onClick={() => setBookingToCancel(booking.id)}
+                                className="flex items-center gap-1"
+                              >
+                                <XCircle className="h-4 w-4" />
+                                Cancel
+                              </Button>
                             </div>
                           </div>
                         </div>
@@ -154,6 +196,24 @@ const Index = () => {
           </p>
         </div>
       </footer>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={!!bookingToCancel} onOpenChange={() => setBookingToCancel(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Booking</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this booking? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCancelBooking} className="bg-destructive hover:bg-destructive/90">
+              Yes, Cancel Booking
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

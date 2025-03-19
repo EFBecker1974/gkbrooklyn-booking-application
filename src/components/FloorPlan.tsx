@@ -1,45 +1,39 @@
 
 import { useState, useEffect } from "react";
-import { getRoomsByArea } from "@/data/rooms";
+import { rooms, getRoomsByArea } from "@/data/rooms";
+import { isRoomBooked } from "@/data/bookings";
 import { RoomItem } from "./RoomItem";
-import { ExcelUploader } from "./ExcelUploader";
 
-export const FloorPlan = () => {
-  const [refreshFlag, setRefreshFlag] = useState(0);
+interface FloorPlanProps {
+  refreshTrigger?: number;
+}
+
+export const FloorPlan = ({ refreshTrigger = 0 }: FloorPlanProps) => {
+  const [refreshState, setRefreshState] = useState(0);
   const roomsByArea = getRoomsByArea();
   
-  // Setup a timer to periodically check for expired bookings and refresh the UI
+  // Update refresh state when refresh trigger changes
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setRefreshFlag(prev => prev + 1);
-    }, 60000); // Check every minute
-    
-    return () => clearInterval(intervalId);
-  }, []);
+    setRefreshState(prev => prev + 1);
+  }, [refreshTrigger]);
   
   const handleBookingUpdate = () => {
-    setRefreshFlag(prev => prev + 1);
+    setRefreshState(prev => prev + 1);
   };
-  
+
   return (
     <div className="space-y-8">
-      <ExcelUploader />
-      
-      {Object.entries(roomsByArea).map(([area, rooms]) => (
-        <div key={`${area}-${refreshFlag}`} className="mb-8 border rounded-lg overflow-hidden shadow-sm">
-          <h3 className="text-lg font-semibold p-4 bg-primary text-white">
-            {area}
-          </h3>
-          <div className="p-4 bg-white">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {rooms.map(room => (
-                <RoomItem 
-                  key={`${room.id}-${refreshFlag}`} 
-                  room={room} 
-                  onBookingUpdate={handleBookingUpdate}
-                />
-              ))}
-            </div>
+      {Object.entries(roomsByArea).map(([area, areaRooms]) => (
+        <div key={area} className="space-y-3">
+          <h3 className="text-xl font-semibold border-b pb-2">{area}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {areaRooms.map(room => (
+              <RoomItem 
+                key={room.id} 
+                room={room} 
+                onBookingUpdate={handleBookingUpdate} 
+              />
+            ))}
           </div>
         </div>
       ))}
