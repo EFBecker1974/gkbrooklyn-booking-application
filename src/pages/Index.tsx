@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { FloorPlan } from "@/components/FloorPlan";
-import { Button } from "@/components/ui/button";
 import { getFutureBookings, Booking } from "@/data/bookings";
 import { rooms } from "@/data/rooms";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -41,7 +40,7 @@ const Index = () => {
           
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-4">Floor Plan</h2>
-            <p className="text-gray-600 mb-4">Click on a room to view details and make a booking</p>
+            <p className="text-gray-600 mb-4">Rooms are grouped by area. Click on a room to view details and make a booking</p>
             
             <div className="overflow-auto">
               <FloorPlan />
