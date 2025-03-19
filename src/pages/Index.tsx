@@ -1,17 +1,17 @@
-
 import { useState, useEffect } from "react";
 import { FloorPlan } from "@/components/FloorPlan";
 import { getFutureBookings, Booking, getUserBookings, cancelBooking } from "@/data/bookings";
 import { rooms } from "@/data/rooms";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
-import { CalendarIcon, ClockIcon, CheckCircle, Users, MapPin, BookOpen, XCircle } from "lucide-react";
+import { CalendarIcon, ClockIcon, CheckCircle, Users, MapPin, BookOpen, XCircle, FileSpreadsheet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserNav } from "@/components/UserNav";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
+import { ExcelUploader } from "@/components/ExcelUploader";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -32,16 +32,14 @@ const Index = () => {
   const userName = user?.email || "";
 
   useEffect(() => {
-    // Set a periodic refresh for bookings
     const timer = setInterval(() => {
       setRefreshTrigger(prev => prev + 1);
-    }, 60000); // Refresh every minute
+    }, 60000);
     
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
-    // Load all bookings and user's bookings
     const allBookings = getFutureBookings();
     setBookings(allBookings);
     
@@ -62,7 +60,6 @@ const Index = () => {
     if (bookingToCancel && userName) {
       const success = cancelBooking(bookingToCancel, userName);
       if (success) {
-        // Refresh bookings after cancellation
         setRefreshTrigger(prev => prev + 1);
       }
       setBookingToCancel(null);
@@ -71,7 +68,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-secondary/50">
-      {/* Church-like header with user nav */}
       <div className="church-header">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
@@ -93,7 +89,7 @@ const Index = () => {
       
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="floorplan" className="w-full">
-          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
+          <TabsList className="grid w-full md:w-[600px] grid-cols-3">
             <TabsTrigger value="floorplan" className="flex items-center gap-2">
               <MapPin className="h-4 w-4" />
               Floor Plan
@@ -101,6 +97,10 @@ const Index = () => {
             <TabsTrigger value="bookings" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               Your Bookings
+            </TabsTrigger>
+            <TabsTrigger value="admin" className="flex items-center gap-2">
+              <FileSpreadsheet className="h-4 w-4" />
+              Room Management
             </TabsTrigger>
           </TabsList>
           
@@ -193,6 +193,23 @@ const Index = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="admin" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileSpreadsheet className="h-5 w-5 text-primary" />
+                  Room Information Management
+                </CardTitle>
+                <CardDescription>
+                  Use Excel to update room details and capacities
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ExcelUploader />
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
       
@@ -204,7 +221,6 @@ const Index = () => {
         </div>
       </footer>
 
-      {/* Confirmation Dialog */}
       <AlertDialog open={!!bookingToCancel} onOpenChange={() => setBookingToCancel(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
