@@ -29,7 +29,7 @@ export const rooms: Room[] = [
     name: "Pooltafel",
     capacity: 8,
     amenities: ["Pool table", "Seating area", "Refreshment corner"],
-    description: "Recreation room with pool table for leisure activities",
+    description: "Hierdie area het 'n pool-tafel in en is oopplan met die kombuis. 10 Mense kan gemaklik saam kuier. Slegs 7 stoele.  Hierdie lokaal kan 7-10 mense akkommodeer",
     area: "Pastorie",
     position: { x: 210, y: 50, width: 150, height: 120 }
   },
