@@ -1,12 +1,14 @@
 
+import { supabase } from "@/integrations/supabase/client";
+
 export interface Room {
   id: string;
   name: string;
   capacity: number;
   amenities: string[];
   description: string;
-  area: "Pastorie" | "Kerksaal" | "Kerkgebou"; // Added area property
-  position: {
+  area: "Pastorie" | "Kerksaal" | "Kerkgebou";
+  position?: {
     x: number;
     y: number;
     width: number;
@@ -14,146 +16,44 @@ export interface Room {
   };
 }
 
-export const rooms: Room[] = [
-  {
-    id: "room-1",
-    name: "Motorhuis",
-    capacity: 20, // Updated capacity
-    amenities: ["Storage space", "Workshop area"],
-    description: "Hierdie lokaal het 'n groot konferensie tafel waar 8 mense gemaklik om die tafel kan sit. Hierdie lokaal kan 11 tot 20 mense akkommodeer",
-    area: "Pastorie",
-    position: { x: 50, y: 50, width: 150, height: 120 }
-  },
-  {
-    id: "room-2",
-    name: "Pooltafel",
-    capacity: 10, // Updated capacity
-    amenities: ["Pool table", "Seating area", "Refreshment corner"],
-    description: "Hierdie area het 'n pool-tafel in en is oopplan met die kombuis. 10 Mense kan gemaklik saam kuier. Slegs 7 stoele.  Hierdie lokaal kan 7-10 mense akkommodeer",
-    area: "Pastorie",
-    position: { x: 210, y: 50, width: 150, height: 120 }
-  },
-  {
-    id: "room-3",
-    name: "Taffeltennis",
-    capacity: 10, // Updated capacity
-    amenities: ["Table tennis table", "Scoreboard", "Storage cabinet"],
-    description: "Hierdie area het 'n tafeltennis-blad wat kan opslaan. Daar is sitplek vir 6. Hierdie lokaal kan 7-10 mense akkommodeer",
-    area: "Pastorie",
-    position: { x: 370, y: 50, width: 150, height: 120 }
-  },
-  {
-    id: "room-4",
-    name: "Kombuis",
-    capacity: 10, // Updated capacity
-    amenities: ["Full kitchen", "Island counter", "Dining area"],
-    description: "Die kombuisarea het 'n tafel in maar nie stoele nie. Hierdie lokaal kan 7-10 mense akkommodeer",
-    area: "Pastorie",
-    position: { x: 530, y: 50, width: 150, height: 120 }
-  },
-  {
-    id: "room-5",
-    name: "Bybelstudielokaal",
-    capacity: 20, // Updated capacity
-    amenities: ["Whiteboard", "Bookshelves", "Study tables"],
-    description: "Room designed for Bible study sessions and discussions",
-    area: "Pastorie",
-    position: { x: 50, y: 180, width: 150, height: 120 }
-  },
-  {
-    id: "room-6",
-    name: "Studeerlokaal",
-    capacity: 20, // Updated capacity
-    amenities: ["Desk space", "Reference materials", "Quiet environment"],
-    description: "Study room with resources for individual or small group learning",
-    area: "Pastorie",
-    position: { x: 210, y: 180, width: 150, height: 120 }
-  },
-  {
-    id: "room-7",
-    name: "Tafeltennisarea",
-    capacity: 10, // Updated capacity
-    amenities: ["Multiple table tennis tables", "Seating area", "Water cooler"],
-    description: "Larger area for table tennis tournaments and group activities",
-    area: "Pastorie",
-    position: { x: 370, y: 180, width: 150, height: 120 }
-  },
-  {
-    id: "room-8",
-    name: "Kafee",
-    capacity: 20, // Updated capacity
-    amenities: ["Coffee machine", "Seating area", "Snack counter"],
-    description: "Casual space for refreshments and informal gatherings",
-    area: "Kerksaal",
-    position: { x: 50, y: 340, width: 150, height: 120 }
-  },
-  {
-    id: "room-9",
-    name: "Bybelstudielokaal",
-    capacity: 10, // Updated capacity
-    amenities: ["Bookshelves", "Whiteboard", "Study tables"],
-    description: "Dedicated room for Bible study and discussion groups",
-    area: "Kerksaal",
-    position: { x: 210, y: 340, width: 150, height: 120 }
-  },
-  {
-    id: "room-10",
-    name: "Kerksaal",
-    capacity: 150, // Updated capacity
-    amenities: ["Sound system", "Projector", "Stage area", "Flexible seating"],
-    description: "Large multipurpose hall for church gatherings and events",
-    area: "Kerksaal",
-    position: { x: 370, y: 340, width: 150, height: 120 }
-  },
-  {
-    id: "room-11",
-    name: "Kombuis",
-    capacity: 6, // Updated capacity
-    amenities: ["Full kitchen", "Refrigerator", "Serving area"],
-    description: "Die kombuisarea het 'n tafel in maar nie stoele nie. Hierdie lokaal kan 7-10 mense akkommodeer",
-    area: "Kerksaal",
-    position: { x: 530, y: 340, width: 150, height: 120 }
-  },
-  {
-    id: "room-12",
-    name: "Kerkkantoor",
-    capacity: 6, // Updated capacity
-    amenities: ["Desks", "Filing cabinets", "Printer"],
-    description: "Administrative office for church staff",
-    area: "Kerksaal",
-    position: { x: 690, y: 340, width: 150, height: 120 }
-  },
-  {
-    id: "room-13",
-    name: "Konsistorie",
-    capacity: 20, // Updated capacity
-    amenities: ["Projector", "Whiteboard", "Sound system"],
-    description: "Meeting room for leadership gatherings",
-    area: "Kerkgebou",
-    position: { x: 210, y: 480, width: 150, height: 120 }
-  },
-  {
-    id: "room-14",
-    name: "Langs liturgie area",
-    capacity: 10, // Updated capacity
-    amenities: ["Sound system", "Video conferencing", "Piano"],
-    description: "Multi-purpose space adjacent to worship area",
-    area: "Kerkgebou",
-    position: { x: 370, y: 480, width: 150, height: 120 }
-  },
-  {
-    id: "room-15",
-    name: "Gesinskamer",
-    capacity: 20, // Updated capacity
-    amenities: ["TV Screen", "Comfortable seating", "Children's play area"],
-    description: "Family-friendly room for community gatherings",
-    area: "Kerkgebou",
-    position: { x: 530, y: 480, width: 150, height: 120 }
-  },
-];
+// Fetch all rooms from Supabase
+export const fetchRooms = async (): Promise<Room[]> => {
+  const { data, error } = await supabase
+    .from('rooms')
+    .select('*');
+  
+  if (error) {
+    console.error("Error fetching rooms:", error);
+    return [];
+  }
+  
+  return data.map(room => ({
+    ...room,
+    amenities: room.amenities || [],
+    position: { x: 0, y: 0, width: 150, height: 120 } // Default position if needed for UI
+  }));
+};
 
-// Helper function to get rooms grouped by area
-export const getRoomsByArea = () => {
+// This is kept for backward compatibility until all components are updated
+export const rooms: Room[] = [];
+
+// Helper function to get rooms grouped by area - now async
+export const getRoomsByArea = async () => {
+  const roomList = await fetchRooms();
+  const groupedRooms: Record<string, Room[]> = {};
+  
+  roomList.forEach(room => {
+    if (!groupedRooms[room.area]) {
+      groupedRooms[room.area] = [];
+    }
+    groupedRooms[room.area].push(room);
+  });
+  
+  return groupedRooms;
+};
+
+// Synchronous version for components that haven't been updated yet
+export const getRoomsByAreaSync = () => {
   const groupedRooms: Record<string, Room[]> = {};
   
   rooms.forEach(room => {

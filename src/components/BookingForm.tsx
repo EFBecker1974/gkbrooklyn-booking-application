@@ -8,9 +8,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, Clock, Sun, Moon, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format, addHours, setHours, setMinutes, addMinutes } from "date-fns";
+import { format, addHours, setHours, setMinutes } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/components/AuthProvider";
+import { toast } from "sonner";
 
 interface BookingFormProps {
   roomId: string;
@@ -28,59 +29,69 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
   const [startHour, setStartHour] = useState("9");
   const [duration, setDuration] = useState<DurationType>("1");
   const [purpose, setPurpose] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user || !user.email) {
-      console.error("User not authenticated");
+      toast.error("You must be logged in to book a room");
       return;
     }
     
-    // Create start time by setting the hour from the selected hour
-    let startTime = setMinutes(setHours(date, parseInt(startHour)), 0);
-    let endTime: Date;
+    setIsSubmitting(true);
     
-    // Calculate end time based on duration type
-    switch(duration) {
-      case "1":
-      case "2":
-      case "3":
-      case "4":
-        // Hours - add the selected number of hours
-        endTime = addHours(startTime, parseInt(duration));
-        break;
-      case "half-day-am":
-        // Morning half day (9:00 AM - 1:00 PM)
-        startTime = setHours(date, 9);
-        endTime = setHours(date, 13);
-        break;
-      case "half-day-pm":
-        // Afternoon half day (1:00 PM - 5:00 PM)
-        startTime = setHours(date, 13);
-        endTime = setHours(date, 17);
-        break;
-      case "full-day":
-        // Full day (9:00 AM - 5:00 PM)
-        startTime = setHours(date, 9);
-        endTime = setHours(date, 17);
-        break;
-      default:
-        // Default 1 hour
-        endTime = addHours(startTime, 1);
-    }
-    
-    const success = bookRoom({
-      roomId,
-      startTime,
-      endTime,
-      bookedBy: user.email,
-      purpose
-    });
-    
-    if (success) {
-      onSuccess();
+    try {
+      // Create start time by setting the hour from the selected hour
+      let startTime = setMinutes(setHours(date, parseInt(startHour)), 0);
+      let endTime: Date;
+      
+      // Calculate end time based on duration type
+      switch(duration) {
+        case "1":
+        case "2":
+        case "3":
+        case "4":
+          // Hours - add the selected number of hours
+          endTime = addHours(startTime, parseInt(duration));
+          break;
+        case "half-day-am":
+          // Morning half day (9:00 AM - 1:00 PM)
+          startTime = setHours(date, 9);
+          endTime = setHours(date, 13);
+          break;
+        case "half-day-pm":
+          // Afternoon half day (1:00 PM - 5:00 PM)
+          startTime = setHours(date, 13);
+          endTime = setHours(date, 17);
+          break;
+        case "full-day":
+          // Full day (9:00 AM - 5:00 PM)
+          startTime = setHours(date, 9);
+          endTime = setHours(date, 17);
+          break;
+        default:
+          // Default 1 hour
+          endTime = addHours(startTime, 1);
+      }
+      
+      const success = await bookRoom({
+        roomId,
+        startTime,
+        endTime,
+        bookedBy: user.email,
+        purpose
+      });
+      
+      if (success) {
+        onSuccess();
+      }
+    } catch (error) {
+      console.error("Error booking room:", error);
+      toast.error("Failed to book room. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -211,7 +222,9 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
         />
       </div>
       
-      <Button type="submit" className="w-full">Book Room</Button>
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? "Booking..." : "Book Room"}
+      </Button>
     </form>
   );
 };

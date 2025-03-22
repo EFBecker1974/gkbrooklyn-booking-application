@@ -2,15 +2,14 @@
 import { useState, useEffect } from "react";
 import { FloorPlan } from "@/components/FloorPlan";
 import { getFutureBookings, Booking, getUserBookings, cancelBooking } from "@/data/bookings";
-import { rooms } from "@/data/rooms";
+import { fetchRooms } from "@/data/rooms";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
-import { CalendarIcon, ClockIcon, CheckCircle, Users, MapPin, BookOpen, XCircle, FileSpreadsheet, Trash2 } from "lucide-react";
+import { CalendarIcon, ClockIcon, CheckCircle, Users, MapPin, BookOpen, Trash2, FileSpreadsheet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserNav } from "@/components/UserNav";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
 import { ExcelUploader } from "@/components/ExcelUploader";
 import { 
@@ -23,15 +22,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from "@/components/ui/alert-dialog";
-import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Index = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [myBookings, setMyBookings] = useState<Booking[]>([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
   const { user } = useAuth();
   const userEmail = user?.email || "";
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -41,30 +39,37 @@ const Index = () => {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    const allBookings = getFutureBookings();
-    setBookings(allBookings);
-    
-    if (userEmail) {
-      const userBookings = getUserBookings(userEmail);
-      setMyBookings(userBookings);
-      console.log("Fetched user bookings:", userBookings.length, "for user:", userEmail);
-    } else {
-      setMyBookings([]);
-      console.log("No user email found, cleared bookings");
-    }
-  }, [refreshTrigger, userEmail]);
+  const { data: roomsList = [] } = useQuery({
+    queryKey: ['rooms'],
+    queryFn: fetchRooms,
+  });
+
+  const { data: bookings = [], refetch: refetchBookings } = useQuery({
+    queryKey: ['allBookings', refreshTrigger],
+    queryFn: getFutureBookings,
+    refetchInterval: 60000,
+  });
+
+  const { data: myBookings = [], refetch: refetchMyBookings } = useQuery({
+    queryKey: ['myBookings', userEmail, refreshTrigger],
+    queryFn: () => getUserBookings(userEmail),
+    enabled: !!userEmail,
+    refetchInterval: 60000,
+  });
 
   const getRoomName = (roomId: string) => {
-    const room = rooms.find(r => r.id === roomId);
+    const room = roomsList.find(r => r.id === roomId);
     return room ? room.name : "Unknown Room";
   };
 
-  const handleCancelBooking = () => {
+  const handleCancelBooking = async () => {
     if (bookingToCancel && userEmail) {
-      const success = cancelBooking(bookingToCancel, userEmail);
+      const success = await cancelBooking(bookingToCancel, userEmail);
       if (success) {
-        setRefreshTrigger(prev => prev + 1);
+        queryClient.invalidateQueries({ queryKey: ['allBookings'] });
+        queryClient.invalidateQueries({ queryKey: ['myBookings'] });
+        queryClient.invalidateQueries({ queryKey: ['roomBooked'] });
+        queryClient.invalidateQueries({ queryKey: ['roomBookingInfo'] });
       }
       setBookingToCancel(null);
     }
@@ -72,7 +77,10 @@ const Index = () => {
 
   // This function is called when a booking is made from FloorPlan
   const handleBookingSuccess = () => {
-    setRefreshTrigger(prev => prev + 1);
+    queryClient.invalidateQueries({ queryKey: ['allBookings'] });
+    queryClient.invalidateQueries({ queryKey: ['myBookings'] });
+    queryClient.invalidateQueries({ queryKey: ['roomBooked'] });
+    queryClient.invalidateQueries({ queryKey: ['roomBookingInfo'] });
   };
 
   return (

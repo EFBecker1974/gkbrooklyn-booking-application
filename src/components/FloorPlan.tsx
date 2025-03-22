@@ -1,10 +1,11 @@
 
 import { useState, useEffect } from "react";
-import { rooms, getRoomsByArea } from "@/data/rooms";
+import { getRoomsByArea, fetchRooms, Room } from "@/data/rooms";
 import { isRoomBooked } from "@/data/bookings";
 import { RoomItem } from "./RoomItem";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { BookingForm } from "./BookingForm";
+import { useQuery } from "@tanstack/react-query";
 
 interface FloorPlanProps {
   refreshTrigger?: number;
@@ -13,8 +14,17 @@ interface FloorPlanProps {
 
 export const FloorPlan = ({ refreshTrigger = 0, onBookingSuccess }: FloorPlanProps) => {
   const [refreshState, setRefreshState] = useState(0);
-  const [selectedRoom, setSelectedRoom] = useState(null);
-  const roomsByArea = getRoomsByArea();
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+  
+  const { data: roomsByArea = {} } = useQuery({
+    queryKey: ['roomsByArea', refreshState, refreshTrigger],
+    queryFn: () => getRoomsByArea(),
+  });
+  
+  const { data: roomsList = [] } = useQuery({
+    queryKey: ['rooms', refreshState, refreshTrigger],
+    queryFn: fetchRooms,
+  });
   
   useEffect(() => {
     setRefreshState(prev => prev + 1);
@@ -31,8 +41,8 @@ export const FloorPlan = ({ refreshTrigger = 0, onBookingSuccess }: FloorPlanPro
     }
   };
 
-  const getRoomName = (roomId) => {
-    const room = rooms.find(r => r.id === roomId);
+  const getRoomName = (roomId: string) => {
+    const room = roomsList.find(r => r.id === roomId);
     return room ? room.name : "Room";
   };
 
@@ -54,11 +64,12 @@ export const FloorPlan = ({ refreshTrigger = 0, onBookingSuccess }: FloorPlanPro
           <div key={area} className="space-y-3">
             <h3 className="text-xl font-semibold border-b pb-2">{area}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {areaRooms.map(room => (
+              {areaRooms.map((room: Room) => (
                 <RoomItem 
                   key={room.id} 
                   room={room} 
                   onBookingUpdate={handleBookingUpdate} 
+                  onSelect={() => setSelectedRoom(room.id)}
                 />
               ))}
             </div>

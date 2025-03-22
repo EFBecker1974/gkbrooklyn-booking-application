@@ -9,6 +9,66 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      booking_usage: {
+        Row: {
+          booking_count: number | null
+          created_at: string | null
+          date: string
+          id: string
+          room_id: string
+          total_hours: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          booking_count?: number | null
+          created_at?: string | null
+          date: string
+          id?: string
+          room_id: string
+          total_hours?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          booking_count?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          room_id?: string
+          total_hours?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          created_at: string | null
+          end_time: string
+          id: string
+          purpose: string | null
+          room_id: string
+          start_time: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          end_time: string
+          id?: string
+          purpose?: string | null
+          room_id: string
+          start_time: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          end_time?: string
+          id?: string
+          purpose?: string | null
+          room_id?: string
+          start_time?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

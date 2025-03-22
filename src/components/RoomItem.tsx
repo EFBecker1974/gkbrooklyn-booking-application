@@ -1,29 +1,48 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Room } from "@/data/rooms";
 import { isRoomBooked, getRoomBookingInfo } from "@/data/bookings";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { BookingForm } from "./BookingForm";
-import { CalendarIcon, Users, Clock, Info, MapPin, CheckCircle } from "lucide-react";
+import { CalendarIcon, Users, Clock, MapPin, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Card } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
 
 interface RoomItemProps {
   room: Room;
   onBookingUpdate: () => void;
+  onSelect?: () => void;
 }
 
-export const RoomItem = ({ room, onBookingUpdate }: RoomItemProps) => {
+export const RoomItem = ({ room, onBookingUpdate, onSelect }: RoomItemProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const isBooked = isRoomBooked(room.id);
-  const bookingInfo = getRoomBookingInfo(room.id);
+
+  const { data: isBooked = false, isLoading: isBookedLoading } = useQuery({
+    queryKey: ['roomBooked', room.id],
+    queryFn: () => isRoomBooked(room.id),
+    refetchInterval: 60000, // Refetch every minute
+  });
+
+  const { data: bookingInfo = null, isLoading: bookingInfoLoading } = useQuery({
+    queryKey: ['roomBookingInfo', room.id, isBooked],
+    queryFn: () => isBooked ? getRoomBookingInfo(room.id) : Promise.resolve(null),
+    enabled: isBooked,
+  });
+  
+  const handleRoomClick = () => {
+    if (onSelect) {
+      onSelect();
+    } else {
+      setIsDialogOpen(true);
+    }
+  };
   
   return (
     <>
       <div 
         className={`cursor-pointer rounded-md p-4 flex flex-col shadow-md hover:shadow-lg transition-all h-full ${isBooked ? 'room-booked' : 'room-available'}`}
-        onClick={() => setIsDialogOpen(true)}
+        onClick={handleRoomClick}
       >
         <div className="font-semibold text-sm mb-1">{room.name}</div>
         <div className="text-xs text-gray-700 mb-2">{room.description}</div>
