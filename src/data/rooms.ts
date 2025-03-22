@@ -27,9 +27,15 @@ export const fetchRooms = async (): Promise<Room[]> => {
     return [];
   }
   
+  if (!data) return [];
+  
   return data.map(room => ({
-    ...room,
-    amenities: room.amenities || [],
+    id: room.id,
+    name: room.name,
+    capacity: room.capacity,
+    description: room.description || '',
+    area: room.area as "Pastorie" | "Kerksaal" | "Kerkgebou",
+    amenities: Array.isArray(room.amenities) ? room.amenities : [],
     position: { x: 0, y: 0, width: 150, height: 120 } // Default position if needed for UI
   }));
 };
