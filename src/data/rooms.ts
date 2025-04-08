@@ -34,7 +34,8 @@ export const fetchRooms = async (): Promise<Room[]> => {
     id: room.id,
     name: room.name,
     capacity: room.capacity,
-    description: room.description || '',
+    // The description field doesn't exist in the database schema, so we use an empty string as default
+    description: '',
     // Map to the expected area format; if area doesn't exist, default to "Pastorie"
     area: (room.features && room.features[0]) as "Pastorie" | "Kerksaal" | "Kerkgebou" || "Pastorie",
     // Use features array as amenities or empty array if not present
