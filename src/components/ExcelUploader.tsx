@@ -1,16 +1,10 @@
 
 import { useState } from 'react';
 import * as XLSX from 'xlsx';
-import { rooms, Room } from '@/data/rooms';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-
-interface RoomUpdate {
-  id: string;
-  description?: string;
-  capacity?: number;
-}
+import { supabase } from '@/integrations/supabase/client';
 
 export const ExcelUploader = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -44,84 +38,103 @@ export const ExcelUploader = () => {
       // Convert to JSON
       const jsonData = XLSX.utils.sheet_to_json<any>(worksheet);
       
-      // Process the data - expect columns: id, description, capacity
-      const updates: RoomUpdate[] = jsonData.map(row => ({
-        id: row.id?.toString() || '',
-        description: row.description,
-        capacity: row.capacity ? Number(row.capacity) : undefined
-      }));
-      
-      // Check for valid data
-      if (updates.length === 0) {
-        throw new Error("No valid data found in Excel file");
+      if (jsonData.length === 0) {
+        throw new Error("No data found in Excel file");
       }
       
-      // Update rooms in the data store
-      let updatedCount = 0;
-      let capacityUpdatedCount = 0;
-      let descriptionUpdatedCount = 0;
+      console.log("Excel data to process:", jsonData);
+
+      // Process each row and update or insert to the database
+      const updatedRecords = [];
+      const newRecords = [];
       
-      console.log("Updates to process:", updates);
-      
-      updates.forEach(update => {
-        if (update.id) {
-          const roomIndex = rooms.findIndex(room => room.id === update.id);
-          if (roomIndex !== -1) {
-            let updated = false;
+      // Process each row in the Excel file
+      for (const row of jsonData) {
+        // Skip rows without an ID
+        if (!row.id) continue;
+
+        // Prepare room data object
+        const roomData: any = {
+          id: row.id.toString(),
+          name: row.name || `Room ${row.id}`,
+          capacity: parseInt(row.capacity) || 0
+        };
+
+        // Handle features array (area + amenities)
+        const features: string[] = [];
+        
+        // First item in features is the area
+        if (row.area) {
+          features.push(row.area);
+        } else {
+          features.push("Pastorie"); // Default area
+        }
+        
+        // Add amenities if present
+        if (row.amenities && typeof row.amenities === 'string') {
+          const amenitiesList = row.amenities.split(',').map((a: string) => a.trim());
+          features.push(...amenitiesList);
+        }
+        
+        roomData.features = features;
+
+        // Check if the room exists
+        const { data: existingRoom } = await supabase
+          .from('rooms')
+          .select('id')
+          .eq('id', roomData.id)
+          .single();
+
+        if (existingRoom) {
+          // Update existing room
+          const { error } = await supabase
+            .from('rooms')
+            .update(roomData)
+            .eq('id', roomData.id);
             
-            console.log(`Found room ${update.id} at index ${roomIndex}`);
-            
-            if (update.description !== undefined) {
-              console.log(`Updating description for room ${update.id}:`, update.description);
-              rooms[roomIndex].description = update.description;
-              descriptionUpdatedCount++;
-              updated = true;
-            }
-            
-            if (update.capacity !== undefined) {
-              console.log(`Updating capacity for room ${update.id}:`, update.capacity);
-              rooms[roomIndex].capacity = update.capacity;
-              capacityUpdatedCount++;
-              updated = true;
-            }
-            
-            if (updated) updatedCount++;
+          if (error) {
+            console.error(`Error updating room ${roomData.id}:`, error);
           } else {
-            console.log(`Room with id ${update.id} not found`);
+            updatedRecords.push(roomData.id);
+          }
+        } else {
+          // Insert new room
+          const { error } = await supabase
+            .from('rooms')
+            .insert(roomData);
+            
+          if (error) {
+            console.error(`Error inserting room ${roomData.id}:`, error);
+          } else {
+            newRecords.push(roomData.id);
           }
         }
-      });
-      
-      console.log("Updated rooms:", rooms);
+      }
       
       // Show success message
-      let successMessage = `Updated ${updatedCount} rooms`;
-      if (descriptionUpdatedCount > 0 && capacityUpdatedCount > 0) {
-        successMessage += ` (${descriptionUpdatedCount} descriptions, ${capacityUpdatedCount} capacities)`;
-      } else if (descriptionUpdatedCount > 0) {
-        successMessage += ` (${descriptionUpdatedCount} descriptions)`;
-      } else if (capacityUpdatedCount > 0) {
-        successMessage += ` (${capacityUpdatedCount} capacities)`;
-      }
-      
-      // If no updates were made but we had valid data, show a warning
-      if (updatedCount === 0 && updates.length > 0) {
+      if (updatedRecords.length > 0 || newRecords.length > 0) {
+        let successMessage = '';
+        if (newRecords.length > 0) {
+          successMessage += `Created ${newRecords.length} new rooms. `;
+        }
+        if (updatedRecords.length > 0) {
+          successMessage += `Updated ${updatedRecords.length} existing rooms.`;
+        }
+        
         toast({
-          title: "No rooms were updated",
-          description: "Check that your room IDs match those in the system",
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Rooms updated successfully",
+          title: "Rooms processed successfully",
           description: successMessage,
         });
+        
+        // Force a reload to reflect the changes
+        window.location.reload();
+      } else {
+        toast({
+          title: "No rooms were processed",
+          description: "Check your Excel file format and try again",
+          variant: "destructive"
+        });
       }
-      
-      // Clear the file input
-      setFile(null);
-      const fileInput = document.getElementById('excel-upload') as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
       
     } catch (error) {
       console.error("Error processing Excel file:", error);
@@ -132,15 +145,19 @@ export const ExcelUploader = () => {
       });
     } finally {
       setIsLoading(false);
+      // Clear the file input
+      setFile(null);
+      const fileInput = document.getElementById('excel-upload') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
     }
   };
 
   return (
     <div className="space-y-4 p-4 border rounded-lg bg-white shadow-sm">
-      <h3 className="text-lg font-medium">Update Room Information</h3>
+      <h3 className="text-lg font-medium">Upload Room Information</h3>
       <p className="text-sm text-muted-foreground">
-        Upload an Excel file with room details to update information.
-        The Excel file should have columns: <code>id</code>, <code>description</code>, and <code>capacity</code>.
+        Upload an Excel file with room details to create or update rooms.
+        The Excel file should have columns: <code>id</code>, <code>name</code>, <code>capacity</code>, <code>area</code>, and <code>amenities</code> (comma separated).
       </p>
       
       <div className="flex flex-col sm:flex-row gap-4">
@@ -170,37 +187,32 @@ export const ExcelUploader = () => {
       </div>
       
       <div className="mt-4">
-        <h4 className="text-sm font-medium mb-2">Room ID Reference:</h4>
-        <div className="text-xs text-muted-foreground max-h-40 overflow-y-auto border p-2 rounded">
-          {rooms.map(room => (
-            <div key={room.id} className="mb-1">
-              <strong>{room.id}</strong>: {room.name} ({room.area}) - Capacity: {room.capacity}
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <div className="mt-4 border-t pt-4">
-        <h4 className="text-sm font-medium mb-2">Sample Excel Structure:</h4>
+        <h4 className="text-sm font-medium mb-2">Excel Structure Example:</h4>
         <div className="overflow-x-auto">
           <table className="min-w-full border text-xs">
             <thead>
               <tr className="bg-muted">
                 <th className="border px-2 py-1">id</th>
-                <th className="border px-2 py-1">description</th>
+                <th className="border px-2 py-1">name</th>
                 <th className="border px-2 py-1">capacity</th>
+                <th className="border px-2 py-1">area</th>
+                <th className="border px-2 py-1">amenities</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border px-2 py-1">room-1</td>
-                <td className="border px-2 py-1">Updated description text</td>
-                <td className="border px-2 py-1">25</td>
+                <td className="border px-2 py-1">101</td>
+                <td className="border px-2 py-1">Conference Room</td>
+                <td className="border px-2 py-1">20</td>
+                <td className="border px-2 py-1">Pastorie</td>
+                <td className="border px-2 py-1">Projector, Whiteboard, WiFi</td>
               </tr>
               <tr>
-                <td className="border px-2 py-1">room-2</td>
-                <td className="border px-2 py-1">Another description update</td>
-                <td className="border px-2 py-1">15</td>
+                <td className="border px-2 py-1">102</td>
+                <td className="border px-2 py-1">Meeting Room</td>
+                <td className="border px-2 py-1">10</td>
+                <td className="border px-2 py-1">Kerksaal</td>
+                <td className="border px-2 py-1">WiFi, Table Tennis</td>
               </tr>
             </tbody>
           </table>
