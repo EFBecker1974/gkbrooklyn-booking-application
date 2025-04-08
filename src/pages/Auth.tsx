@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
-import { BookOpen, User, Lock, AlertCircle } from "lucide-react";
+import { BookOpen, User as UserIcon, Lock, AlertCircle } from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
+import { useEffect } from "react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +20,17 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { user } = useAuth();
+  
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      const returnUrl = location.state?.returnUrl || "/";
+      navigate(returnUrl);
+    }
+  }, [user, navigate, location.state]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +57,8 @@ const Auth = () => {
       
       // Auto-login after signup (since email verification is likely disabled in dev)
       if (data?.user) {
-        navigate("/");
+        const returnUrl = location.state?.returnUrl || "/";
+        navigate(returnUrl);
       }
     } catch (error) {
       setError((error as Error).message);
@@ -72,7 +85,8 @@ const Auth = () => {
         description: "Welcome back!",
       });
       
-      navigate("/");
+      const returnUrl = location.state?.returnUrl || "/";
+      navigate(returnUrl);
     } catch (error) {
       setError((error as Error).message);
     } finally {
@@ -118,7 +132,7 @@ const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <UserIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="email"
                         type="email"
@@ -180,7 +194,7 @@ const Auth = () => {
                   <div className="space-y-2">
                     <Label htmlFor="registerEmail">Email</Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <UserIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="registerEmail"
                         type="email"
@@ -235,7 +249,7 @@ const Auth = () => {
             &copy; {new Date().getFullYear()} GK Brooklyn Facility Management System
           </p>
         </div>
-      </footer>
+      </div>
     </div>
   );
 };

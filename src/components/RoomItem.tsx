@@ -1,10 +1,10 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Room } from "@/data/rooms";
 import { isRoomBooked, getRoomBookingInfo } from "@/data/bookings";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { BookingForm } from "./BookingForm";
-import { CalendarIcon, Users, Clock, MapPin, CheckCircle } from "lucide-react";
+import { CalendarIcon, Users, Clock, MapPin, CheckCircle, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
@@ -38,6 +38,9 @@ export const RoomItem = ({ room, onBookingUpdate, onSelect }: RoomItemProps) => 
     }
   };
   
+  // Display room description if available
+  const hasDescription = room.description && room.description.trim() !== '';
+  
   return (
     <>
       <div 
@@ -45,7 +48,10 @@ export const RoomItem = ({ room, onBookingUpdate, onSelect }: RoomItemProps) => 
         onClick={handleRoomClick}
       >
         <div className="font-semibold text-sm mb-1">{room.name}</div>
-        <div className="text-xs text-gray-700 mb-2">{room.description}</div>
+        
+        {hasDescription && (
+          <div className="text-xs text-gray-700 mb-2 line-clamp-2">{room.description}</div>
+        )}
         
         <div className="flex items-center text-xs gap-1 mt-1">
           <Users className="h-3 w-3 text-primary" />
@@ -90,7 +96,14 @@ export const RoomItem = ({ room, onBookingUpdate, onSelect }: RoomItemProps) => 
               {room.name}
             </DialogTitle>
             <DialogDescription>
-              {room.description} • Capacity: {room.capacity} people
+              {hasDescription ? (
+                <div className="flex items-start gap-2 mt-1">
+                  <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                  <span>{room.description}</span>
+                </div>
+              ) : (
+                <span>Capacity: {room.capacity} people</span>
+              )}
             </DialogDescription>
           </DialogHeader>
           

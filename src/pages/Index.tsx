@@ -5,7 +5,7 @@ import { getFutureBookings, Booking, getUserBookings, cancelBooking } from "@/da
 import { fetchRooms } from "@/data/rooms";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
-import { CalendarIcon, ClockIcon, CheckCircle, Users, MapPin, BookOpen, Trash2, FileSpreadsheet } from "lucide-react";
+import { CalendarIcon, ClockIcon, CheckCircle, Users, MapPin, BookOpen, Trash2, FileSpreadsheet, Lock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserNav } from "@/components/UserNav";
@@ -27,7 +27,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 const Index = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const userEmail = user?.email || "";
   const queryClient = useQueryClient();
 
@@ -60,6 +60,11 @@ const Index = () => {
   const getRoomName = (roomId: string) => {
     const room = roomsList.find(r => r.id === roomId);
     return room ? room.name : "Unknown Room";
+  };
+
+  const getRoomDescription = (roomId: string) => {
+    const room = roomsList.find(r => r.id === roomId);
+    return room?.description || "";
   };
 
   const handleCancelBooking = async () => {
@@ -106,7 +111,7 @@ const Index = () => {
       
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="floorplan" className="w-full">
-          <TabsList className="grid w-full md:w-[600px] grid-cols-3">
+          <TabsList className={`grid ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'} w-full md:w-[600px]`}>
             <TabsTrigger value="floorplan" className="flex items-center gap-2">
               <MapPin className="h-4 w-4" />
               Floor Plan
@@ -115,10 +120,12 @@ const Index = () => {
               <BookOpen className="h-4 w-4" />
               Your Bookings
             </TabsTrigger>
-            <TabsTrigger value="admin" className="flex items-center gap-2">
-              <FileSpreadsheet className="h-4 w-4" />
-              Room Management
-            </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="admin" className="flex items-center gap-2">
+                <FileSpreadsheet className="h-4 w-4" />
+                Room Management
+              </TabsTrigger>
+            )}
           </TabsList>
           
           <TabsContent value="floorplan" className="mt-6">
@@ -166,6 +173,9 @@ const Index = () => {
                           <div className="flex-1">
                             <div className="font-medium text-lg">{getRoomName(booking.roomId)}</div>
                             <div className="text-sm text-gray-600">{booking.purpose}</div>
+                            {getRoomDescription(booking.roomId) && (
+                              <div className="text-xs text-gray-500 mt-1">{getRoomDescription(booking.roomId)}</div>
+                            )}
                             <div className="mt-2 flex flex-col sm:flex-row sm:gap-4 text-xs text-gray-500">
                               <div className="flex items-center">
                                 <CalendarIcon className="h-3 w-3 mr-1" />
@@ -211,22 +221,38 @@ const Index = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="admin" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileSpreadsheet className="h-5 w-5 text-primary" />
-                  Room Information Management
-                </CardTitle>
-                <CardDescription>
-                  Use Excel to update room details and capacities
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ExcelUploader />
-              </CardContent>
-            </Card>
-          </TabsContent>
+          {isAdmin && (
+            <TabsContent value="admin" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileSpreadsheet className="h-5 w-5 text-primary" />
+                    Room Information Management
+                  </CardTitle>
+                  <CardDescription>
+                    Use Excel to update room details and capacities
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ExcelUploader />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+          
+          {!isAdmin && (
+            <TabsContent value="admin" className="mt-6">
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                  <Lock className="h-12 w-12 text-gray-300 mb-3" />
+                  <h3 className="text-lg font-medium text-gray-900">Admin Access Required</h3>
+                  <p className="text-sm text-gray-500 max-w-md mx-auto mt-2">
+                    You do not have permission to access room management features. Please contact an administrator for assistance.
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
       

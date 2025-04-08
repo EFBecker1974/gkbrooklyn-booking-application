@@ -8,7 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, Clock, Sun, Moon, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format, addHours, setHours, setMinutes } from "date-fns";
+import { format, addHours, setHours, setMinutes, isBefore, startOfDay } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/components/AuthProvider";
 import { toast } from "sonner";
@@ -25,7 +25,9 @@ type DurationType =
   | "full-day";
 
 export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
-  const [date, setDate] = useState<Date>(new Date());
+  // Set default date to tomorrow to ensure it's in the future
+  const tomorrow = addHours(new Date(), 24);
+  const [date, setDate] = useState<Date>(tomorrow);
   const [startHour, setStartHour] = useState("9");
   const [duration, setDuration] = useState<DurationType>("1");
   const [purpose, setPurpose] = useState("");
@@ -46,6 +48,12 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
       // Create start time by setting the hour from the selected hour
       let startTime = setMinutes(setHours(date, parseInt(startHour)), 0);
       let endTime: Date;
+      
+      // Check if the booking start time is in the past
+      if (isBefore(startTime, new Date())) {
+        toast.error("Cannot book a time slot in the past");
+        return;
+      }
       
       // Calculate end time based on duration type
       switch(duration) {
@@ -106,6 +114,9 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
 
   // Only show start time field if duration is hourly
   const isHourlyDuration = ["1", "2", "3", "4"].includes(duration);
+  
+  // Get current date for date picker disabled dates
+  const today = startOfDay(new Date());
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -131,7 +142,7 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
                 selected={date}
                 onSelect={(newDate) => newDate && setDate(newDate)}
                 initialFocus
-                disabled={(date) => date < new Date()}
+                disabled={(date) => isBefore(date, today)}
                 className={cn("p-3 pointer-events-auto")}
               />
             </PopoverContent>

@@ -8,6 +8,7 @@ type AuthContextType = {
   user: User | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  isAdmin: boolean;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -15,6 +16,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   signOut: async () => {},
+  isAdmin: false,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -23,6 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Get initial session
@@ -31,6 +34,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const { data } = await supabase.auth.getSession();
         setSession(data.session);
         setUser(data.session?.user ?? null);
+        
+        if (data.session?.user) {
+          checkUserRole(data.session.user.id);
+        }
       } catch (error) {
         console.error("Error getting initial session:", error);
       } finally {
@@ -46,6 +53,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log(`Auth state changed: ${event}`);
         setSession(session);
         setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          checkUserRole(session.user.id);
+        } else {
+          setIsAdmin(false);
+        }
+        
         setLoading(false);
       }
     );
@@ -56,9 +70,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
+  const checkUserRole = async (userId: string) => {
+    try {
+      // Query the users table for admin role
+      const { data, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', userId)
+        .single();
+      
+      if (error) {
+        console.error("Error fetching user role:", error);
+        setIsAdmin(false);
+        return;
+      }
+      
+      setIsAdmin(data?.role === 'admin');
+    } catch (error) {
+      console.error("Error checking user role:", error);
+      setIsAdmin(false);
+    }
+  };
+
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
+      setIsAdmin(false);
     } catch (error) {
       console.error("Error signing out:", error);
     }
@@ -69,6 +106,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     loading,
     signOut,
+    isAdmin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
