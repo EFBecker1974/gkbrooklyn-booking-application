@@ -18,6 +18,7 @@ export interface Room {
 
 // Fetch all rooms from Supabase
 export const fetchRooms = async (): Promise<Room[]> => {
+  // Use the "rooms" table with the correct type assertion
   const { data, error } = await supabase
     .from('rooms')
     .select('*');
@@ -34,9 +35,12 @@ export const fetchRooms = async (): Promise<Room[]> => {
     name: room.name,
     capacity: room.capacity,
     description: room.description || '',
-    area: room.area as "Pastorie" | "Kerksaal" | "Kerkgebou",
-    amenities: Array.isArray(room.amenities) ? room.amenities : [],
-    position: { x: 0, y: 0, width: 150, height: 120 } // Default position if needed for UI
+    // Map to the expected area format; if area doesn't exist, default to "Pastorie"
+    area: (room.features && room.features[0]) as "Pastorie" | "Kerksaal" | "Kerkgebou" || "Pastorie",
+    // Use features array as amenities or empty array if not present
+    amenities: Array.isArray(room.features) ? room.features.slice(1) : [],
+    // Default position for UI rendering
+    position: { x: 0, y: 0, width: 150, height: 120 }
   }));
 };
 
