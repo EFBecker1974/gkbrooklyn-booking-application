@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkUserRole = async (userId: string) => {
     try {
-      // Query the profiles table for admin role instead of users table
+      // Query the profiles table for admin role
       const { data, error } = await supabase
         .from('profiles')
         .select('role')
@@ -85,7 +85,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
       
+      // Check if the role is 'admin'
       setIsAdmin(data?.role === 'admin');
+      console.log("User role check:", data?.role, "Is admin:", data?.role === 'admin');
     } catch (error) {
       console.error("Error checking user role:", error);
       setIsAdmin(false);
