@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { FloorPlan } from "@/components/FloorPlan";
 import { getFutureBookings, Booking, getUserBookings, cancelBooking } from "@/data/bookings";
@@ -171,19 +170,19 @@ const Index = () => {
                             <Users className="h-5 w-5" />
                           </div>
                           <div className="flex-1">
-                            <div className="font-medium text-lg">{getRoomName(booking.roomId)}</div>
+                            <div className="font-medium text-lg">{getRoomName(booking.room_id)}</div>
                             <div className="text-sm text-gray-600">{booking.purpose}</div>
-                            {getRoomDescription(booking.roomId) && (
-                              <div className="text-xs text-gray-500 mt-1">{getRoomDescription(booking.roomId)}</div>
+                            {getRoomDescription(booking.room_id) && (
+                              <div className="text-xs text-gray-500 mt-1">{getRoomDescription(booking.room_id)}</div>
                             )}
                             <div className="mt-2 flex flex-col sm:flex-row sm:gap-4 text-xs text-gray-500">
                               <div className="flex items-center">
                                 <CalendarIcon className="h-3 w-3 mr-1" />
-                                {format(booking.startTime, "MMMM d, yyyy")}
+                                {format(new Date(booking.start_time), "MMMM d, yyyy")}
                               </div>
                               <div className="flex items-center">
                                 <ClockIcon className="h-3 w-3 mr-1" />
-                                {format(booking.startTime, "h:mm a")} - {format(booking.endTime, "h:mm a")}
+                                {format(new Date(booking.start_time), "h:mm a")} - {format(new Date(booking.end_time), "h:mm a")}
                               </div>
                             </div>
                           </div>

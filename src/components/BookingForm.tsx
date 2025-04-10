@@ -52,6 +52,7 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
       // Check if the booking start time is in the past
       if (isBefore(startTime, new Date())) {
         toast.error("Cannot book a time slot in the past");
+        setIsSubmitting(false);
         return;
       }
       
@@ -93,7 +94,10 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
       });
       
       if (success) {
+        toast.success("Room booked successfully");
         onSuccess();
+      } else {
+        toast.error("Failed to book room. Please try again.");
       }
     } catch (error) {
       console.error("Error booking room:", error);

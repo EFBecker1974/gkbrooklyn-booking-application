@@ -86,8 +86,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       // Check if the role is 'admin'
-      setIsAdmin(data?.role === 'admin');
-      console.log("User role check:", data?.role, "Is admin:", data?.role === 'admin');
+      if (data && typeof data.role === 'string') {
+        setIsAdmin(data.role === 'admin');
+        console.log("User role check:", data.role, "Is admin:", data.role === 'admin');
+      } else {
+        setIsAdmin(false);
+      }
     } catch (error) {
       console.error("Error checking user role:", error);
       setIsAdmin(false);

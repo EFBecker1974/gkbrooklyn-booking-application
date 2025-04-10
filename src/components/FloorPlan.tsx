@@ -1,8 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { getRoomsByArea, fetchRooms, Room } from "@/data/rooms";
-import { isRoomBooked } from "@/data/bookings";
-import { RoomItem } from "./RoomItem";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { BookingForm } from "./BookingForm";
 import { useQuery } from "@tanstack/react-query";
@@ -79,3 +77,6 @@ export const FloorPlan = ({ refreshTrigger = 0, onBookingSuccess }: FloorPlanPro
     </div>
   );
 };
+
+// Import RoomItem to fix circular dependency issues
+import { RoomItem } from "./RoomItem";

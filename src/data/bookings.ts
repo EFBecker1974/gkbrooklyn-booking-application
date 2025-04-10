@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 
@@ -71,6 +72,24 @@ export const getRoomBookings = async (roomId: string): Promise<Booking[]> => {
   return bookings || [];
 };
 
+// Add the missing bookRoom function that BookingForm.tsx is trying to use
+export const bookRoom = async (booking: {
+  roomId: string;
+  startTime: Date;
+  endTime: Date;
+  bookedBy: string;
+  purpose?: string;
+}): Promise<boolean> => {
+  // Just call our existing createBooking function with the right parameters
+  return await createBooking({
+    roomId: booking.roomId,
+    startTime: booking.startTime,
+    endTime: booking.endTime,
+    userEmail: booking.bookedBy,
+    purpose: booking.purpose
+  });
+};
+
 export const createBooking = async (booking: {
   roomId: string;
   startTime: Date;
@@ -121,4 +140,23 @@ export const getRoomBookingInfo = async (roomId: string, startTime: Date, endTim
   }
 
   return bookings || [];
+};
+
+// Add missing isRoomBooked function needed by FloorPlan and RoomItem
+export const isRoomBooked = async (roomId: string): Promise<boolean> => {
+  const now = new Date();
+  const { data, error } = await supabase
+    .from('bookings')
+    .select('id')
+    .eq('room_id', roomId)
+    .lte('start_time', now.toISOString())
+    .gte('end_time', now.toISOString())
+    .limit(1);
+    
+  if (error) {
+    console.error("Error checking if room is booked:", error);
+    return false;
+  }
+  
+  return (data && data.length > 0);
 };

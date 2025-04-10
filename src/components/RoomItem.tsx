@@ -24,9 +24,13 @@ export const RoomItem = ({ room, onBookingUpdate, onSelect }: RoomItemProps) => 
     refetchInterval: 60000, // Refetch every minute
   });
 
+  const now = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(now.getDate() + 1);
+
   const { data: bookingInfo = null, isLoading: bookingInfoLoading } = useQuery({
     queryKey: ['roomBookingInfo', room.id, isBooked],
-    queryFn: () => isBooked ? getRoomBookingInfo(room.id) : Promise.resolve(null),
+    queryFn: () => isBooked ? getRoomBookingInfo(room.id, now, tomorrow) : Promise.resolve(null),
     enabled: isBooked,
   });
   
@@ -40,6 +44,9 @@ export const RoomItem = ({ room, onBookingUpdate, onSelect }: RoomItemProps) => 
   
   // Display room description if available
   const hasDescription = room.description && room.description.trim() !== '';
+
+  // Get the current booking information if the room is booked
+  const currentBooking = bookingInfo && bookingInfo.length > 0 ? bookingInfo[0] : null;
   
   return (
     <>
@@ -59,20 +66,20 @@ export const RoomItem = ({ room, onBookingUpdate, onSelect }: RoomItemProps) => 
         </div>
         
         <div className="mt-auto pt-3">
-          {isBooked && bookingInfo ? (
+          {isBooked && currentBooking ? (
             <div className="space-y-1 mt-1 bg-white p-2 rounded text-xs">
               <div className="flex items-center gap-1">
                 <CalendarIcon className="h-3 w-3 text-primary" />
-                <span>{format(bookingInfo.startTime, "MMM d, yyyy")}</span>
+                <span>{format(new Date(currentBooking.start_time), "MMM d, yyyy")}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3 text-primary" />
                 <span>
-                  {format(bookingInfo.startTime, "h:mm a")} - {format(bookingInfo.endTime, "h:mm a")}
+                  {format(new Date(currentBooking.start_time), "h:mm a")} - {format(new Date(currentBooking.end_time), "h:mm a")}
                 </span>
               </div>
               <div className="text-xs mt-1">
-                <span className="font-medium">Booked by: </span>{bookingInfo.bookedBy}
+                <span className="font-medium">Booked by: </span>{currentBooking.user_id}
               </div>
             </div>
           ) : (
@@ -109,7 +116,7 @@ export const RoomItem = ({ room, onBookingUpdate, onSelect }: RoomItemProps) => 
           
           <div className="space-y-4">
             <div className="flex flex-wrap gap-2 my-2">
-              {room.amenities.map((amenity, index) => (
+              {room.amenities && room.amenities.map((amenity, index) => (
                 <Badge key={index} variant="outline" className="text-xs border-primary/30 text-primary">
                   {amenity}
                 </Badge>
