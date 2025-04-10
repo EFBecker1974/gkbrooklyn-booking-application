@@ -249,7 +249,7 @@ const Auth = () => {
             &copy; {new Date().getFullYear()} GK Brooklyn Facility Management System
           </p>
         </div>
-      </div>
+      </footer>
     </div>
   );
 };
