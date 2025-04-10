@@ -160,6 +160,7 @@ export const bookRoom = async (booking: Omit<Booking, 'id'>): Promise<boolean> =
     return false;
   }
   
+  // Insert directly into the bookings table without triggering booking_usage
   const { error } = await supabase
     .from('bookings')
     .insert({
