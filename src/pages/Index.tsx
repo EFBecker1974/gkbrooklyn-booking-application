@@ -79,7 +79,6 @@ const Index = () => {
     }
   };
 
-  // This function is called when a booking is made from FloorPlan
   const handleBookingSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['allBookings'] });
     queryClient.invalidateQueries({ queryKey: ['myBookings'] });

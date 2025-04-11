@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { bookRoom } from "@/data/bookings";
+import { bookRoom } from "@/data/bookingMutations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
