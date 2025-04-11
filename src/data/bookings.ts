@@ -24,10 +24,24 @@ export const getFutureBookings = async (): Promise<Booking[]> => {
 export const getUserBookings = async (userEmail: string): Promise<Booking[]> => {
   const now = new Date().toISOString();
 
+  // Get the user's ID from profiles table using email
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('email', userEmail)
+    .single();
+    
+  if (profileError || !profile) {
+    console.error("Error finding user profile:", profileError);
+    return [];
+  }
+    
+  const userId = profile.id;
+
   const { data: bookings, error } = await supabase
     .from('bookings')
     .select('*')
-    .eq('user_id', userEmail)
+    .eq('user_id', userId)
     .gte('end_time', now)
     .order('start_time', { ascending: true });
 
@@ -40,11 +54,25 @@ export const getUserBookings = async (userEmail: string): Promise<Booking[]> => 
 };
 
 export const cancelBooking = async (bookingId: string, userEmail: string): Promise<boolean> => {
+  // Get the user's ID from profiles table using email
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('email', userEmail)
+    .single();
+    
+  if (profileError || !profile) {
+    console.error("Error finding user profile:", profileError);
+    return false;
+  }
+    
+  const userId = profile.id;
+  
   const { error } = await supabase
     .from('bookings')
     .delete()
     .eq('id', bookingId)
-    .eq('user_id', userEmail);
+    .eq('user_id', userId);
 
   if (error) {
     console.error("Error cancelling booking:", error);
@@ -72,7 +100,6 @@ export const getRoomBookings = async (roomId: string): Promise<Booking[]> => {
   return bookings || [];
 };
 
-// Add the missing bookRoom function that BookingForm.tsx is trying to use
 export const bookRoom = async (booking: {
   roomId: string;
   startTime: Date;
@@ -80,38 +107,35 @@ export const bookRoom = async (booking: {
   bookedBy: string;
   purpose?: string;
 }): Promise<boolean> => {
-  // Just call our existing createBooking function with the right parameters
-  return await createBooking({
-    roomId: booking.roomId,
-    startTime: booking.startTime,
-    endTime: booking.endTime,
-    userEmail: booking.bookedBy,
-    purpose: booking.purpose
-  });
-};
-
-export const createBooking = async (booking: {
-  roomId: string;
-  startTime: Date;
-  endTime: Date;
-  userEmail: string;
-  purpose?: string;
-}): Promise<boolean> => {
   console.log("Creating booking:", booking);
   
-  if (!booking.userEmail) {
+  if (!booking.bookedBy) {
     console.error("No user email provided");
     return false;
   }
   
-  // Insert directly into the bookings table
+  // Get the user's ID from profiles table using email
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('email', booking.bookedBy)
+    .single();
+    
+  if (profileError || !profile) {
+    console.error("Error finding user profile:", profileError);
+    return false;
+  }
+    
+  const userId = profile.id;
+  
+  // Insert directly into the bookings table with the user's UUID instead of email
   const { error } = await supabase
     .from('bookings')
     .insert({
       room_id: booking.roomId,
       start_time: booking.startTime.toISOString(),
       end_time: booking.endTime.toISOString(),
-      user_id: booking.userEmail,
+      user_id: userId,
       purpose: booking.purpose || "Room reservation"
     });
   
@@ -121,6 +145,23 @@ export const createBooking = async (booking: {
   }
   
   return true;
+};
+
+export const createBooking = async (booking: {
+  roomId: string;
+  startTime: Date;
+  endTime: Date;
+  userEmail: string;
+  purpose?: string;
+}): Promise<boolean> => {
+  // Just call our bookRoom function with the right parameters
+  return await bookRoom({
+    roomId: booking.roomId,
+    startTime: booking.startTime,
+    endTime: booking.endTime,
+    bookedBy: booking.userEmail,
+    purpose: booking.purpose
+  });
 };
 
 export const getRoomBookingInfo = async (roomId: string, startTime: Date, endTime: Date): Promise<Booking[]> => {
@@ -142,7 +183,6 @@ export const getRoomBookingInfo = async (roomId: string, startTime: Date, endTim
   return bookings || [];
 };
 
-// Add missing isRoomBooked function needed by FloorPlan and RoomItem
 export const isRoomBooked = async (roomId: string): Promise<boolean> => {
   const now = new Date();
   const { data, error } = await supabase
