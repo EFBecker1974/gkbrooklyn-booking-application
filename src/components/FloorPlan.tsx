@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { getRoomsByArea, fetchRooms, Room } from "@/data/rooms";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader } from "@/components/ui/dialog";
 import { BookingForm } from "./BookingForm";
 import { useQuery } from "@tanstack/react-query";
 
@@ -49,10 +49,12 @@ export const FloorPlan = ({ refreshTrigger = 0, onBookingSuccess }: FloorPlanPro
       {selectedRoom && (
         <Dialog open={!!selectedRoom} onOpenChange={(open) => !open && setSelectedRoom(null)}>
           <DialogContent className="sm:max-w-[425px]">
-            <DialogTitle>Book {getRoomName(selectedRoom)}</DialogTitle>
-            <DialogDescription>
-              Reserve {getRoomName(selectedRoom)} for your upcoming event.
-            </DialogDescription>
+            <DialogHeader>
+              <DialogTitle>Book {getRoomName(selectedRoom)}</DialogTitle>
+              <DialogDescription>
+                Reserve {getRoomName(selectedRoom)} for your upcoming event.
+              </DialogDescription>
+            </DialogHeader>
             <BookingForm roomId={selectedRoom} onSuccess={handleBookingSuccess} />
           </DialogContent>
         </Dialog>
