@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { bookRoom } from "@/data/bookingMutations";
+import { createBooking } from "@/data/bookings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,15 +85,16 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
           endTime = addHours(startTime, 1);
       }
       
-      const success = await bookRoom({
+      // Use createBooking instead of bookRoom to handle user email conversion to UUID
+      const bookingId = await createBooking({
         roomId,
         startTime,
         endTime,
-        bookedBy: user.email,
+        userEmail: user.email,
         purpose
       });
       
-      if (success) {
+      if (bookingId) {
         toast.success("Room booked successfully");
         onSuccess();
       } else {

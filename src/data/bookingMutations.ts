@@ -45,9 +45,24 @@ export const createBooking = async (bookingData: BookingCreateRequest): Promise<
 
 /**
  * Book a room with a stored procedure or direct insert
+ * This function is deprecated, use createBooking instead
+ * @deprecated
  */
 export const bookRoom = async (booking: BookingRequest): Promise<boolean> => {
   try {
+    // Convert email to userId if needed
+    let userId = booking.bookedBy;
+    
+    // Check if it looks like an email
+    if (booking.bookedBy.includes('@')) {
+      const userIdFromEmail = await getUserIdFromEmail(booking.bookedBy);
+      if (!userIdFromEmail) {
+        console.error("Could not find user ID for email:", booking.bookedBy);
+        return false;
+      }
+      userId = userIdFromEmail;
+    }
+    
     const { data, error } = await supabase
       .from('bookings')
       .insert([
@@ -55,7 +70,7 @@ export const bookRoom = async (booking: BookingRequest): Promise<boolean> => {
           room_id: booking.roomId,
           start_time: booking.startTime.toISOString(),
           end_time: booking.endTime.toISOString(),
-          user_id: booking.bookedBy,
+          user_id: userId,
           purpose: booking.purpose || 'Meeting'
         }
       ]);
