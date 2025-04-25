@@ -92,10 +92,11 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
         roomId,
         startTime: startTime.toISOString(),
         endTime: endTime.toISOString(),
-        userEmail: user.email
+        userEmail: user.email,
+        purpose
       });
       
-      // Use createBooking instead of bookRoom to handle user email conversion to UUID
+      // Try to create the booking
       const bookingId = await createBooking({
         roomId,
         startTime,
@@ -113,7 +114,7 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
       }
     } catch (error) {
       console.error("Error booking room:", error);
-      setErrorMessage("An unexpected error occurred. Please try again.");
+      setErrorMessage(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`);
       toast.error("Failed to book room. Please try again.");
     } finally {
       setIsSubmitting(false);

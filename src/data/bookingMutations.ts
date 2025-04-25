@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { BookingRequest, BookingCreateRequest } from "@/types/booking.types";
 import { getUserIdFromEmail } from "@/utils/user-utils";
+import { toast } from "sonner";
 
 /**
  * Create a booking directly in the database
@@ -17,7 +18,15 @@ export const createBooking = async (bookingData: BookingCreateRequest): Promise<
       return null;
     }
 
-    // Try direct insert approach first - simplest solution
+    console.log("Creating booking with data:", {
+      room_id: roomId,
+      start_time: startTime.toISOString(),
+      end_time: endTime.toISOString(),
+      user_id: userId,
+      purpose: purpose || 'Meeting'
+    });
+
+    // Direct insert to bookings table
     const { data, error } = await supabase
       .from('bookings')
       .insert([
@@ -33,13 +42,13 @@ export const createBooking = async (bookingData: BookingCreateRequest): Promise<
 
     if (error) {
       console.error("Error creating booking:", error);
-      return null;
+      throw new Error(`Booking failed: ${error.message}`);
     }
 
     return data && data[0]?.id || null;
   } catch (error) {
     console.error("Exception when creating booking:", error);
-    return null;
+    throw error;
   }
 };
 
@@ -63,6 +72,14 @@ export const bookRoom = async (booking: BookingRequest): Promise<boolean> => {
       userId = userIdFromEmail;
     }
     
+    console.log("Creating booking with bookRoom:", {
+      room_id: booking.roomId,
+      start_time: booking.startTime.toISOString(),
+      end_time: booking.endTime.toISOString(),
+      user_id: userId,
+      purpose: booking.purpose || 'Meeting'
+    });
+
     // Direct insert to bookings table
     const { error } = await supabase
       .from('bookings')
