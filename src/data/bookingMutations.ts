@@ -17,7 +17,8 @@ export const createBooking = async (bookingData: BookingCreateRequest): Promise<
       return null;
     }
 
-    // Insert the booking
+    // Insert the booking without triggering the booking_usage update
+    // This avoids the row-level security policy violation
     const { data, error } = await supabase
       .from('bookings')
       .insert([
