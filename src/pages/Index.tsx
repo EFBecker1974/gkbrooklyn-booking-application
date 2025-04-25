@@ -22,6 +22,7 @@ import {
   AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const Index = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -68,22 +69,44 @@ const Index = () => {
 
   const handleCancelBooking = async () => {
     if (bookingToCancel && userEmail) {
-      const success = await cancelBooking(bookingToCancel, userEmail);
-      if (success) {
-        queryClient.invalidateQueries({ queryKey: ['allBookings'] });
-        queryClient.invalidateQueries({ queryKey: ['myBookings'] });
-        queryClient.invalidateQueries({ queryKey: ['roomBooked'] });
-        queryClient.invalidateQueries({ queryKey: ['roomBookingInfo'] });
+      try {
+        const success = await cancelBooking(bookingToCancel, userEmail);
+        if (success) {
+          toast.success("Booking cancelled successfully");
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['allBookings'] }),
+            queryClient.invalidateQueries({ queryKey: ['myBookings'] }),
+            queryClient.invalidateQueries({ queryKey: ['roomBooked'] }),
+            queryClient.invalidateQueries({ queryKey: ['roomBookingInfo'] })
+          ]);
+          
+          await Promise.all([
+            refetchBookings(),
+            refetchMyBookings()
+          ]);
+        }
+      } catch (error) {
+        console.error("Error cancelling booking:", error);
+        toast.error("Failed to cancel booking. Please try again.");
+      } finally {
+        setBookingToCancel(null);
       }
-      setBookingToCancel(null);
     }
   };
 
-  const handleBookingSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['allBookings'] });
-    queryClient.invalidateQueries({ queryKey: ['myBookings'] });
-    queryClient.invalidateQueries({ queryKey: ['roomBooked'] });
-    queryClient.invalidateQueries({ queryKey: ['roomBookingInfo'] });
+  const handleBookingSuccess = async () => {
+    toast.success("Room booked successfully!");
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['allBookings'] }),
+      queryClient.invalidateQueries({ queryKey: ['myBookings'] }),
+      queryClient.invalidateQueries({ queryKey: ['roomBooked'] }),
+      queryClient.invalidateQueries({ queryKey: ['roomBookingInfo'] })
+    ]);
+    
+    await Promise.all([
+      refetchBookings(),
+      refetchMyBookings()
+    ]);
   };
 
   return (

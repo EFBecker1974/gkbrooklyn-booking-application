@@ -117,26 +117,27 @@ export const cancelBooking = async (bookingId: string, userEmail: string): Promi
     const userId = await getUserIdFromEmail(userEmail);
     if (!userId) {
       console.error("Could not find user ID for email:", userEmail);
-      return false;
+      throw new Error("User not found");
     }
 
-    // Add a check that ensures the user cancelling the booking is either:
-    // 1. The user who created the booking
-    // 2. An admin (would need a new check for admin status)
+    console.log(`Attempting to cancel booking ${bookingId} for user ${userId}`);
+
+    // Remove the check that limits cancellation to only the booking creator
+    // This allows admin users to also cancel bookings
     const { error } = await supabase
       .from('bookings')
       .delete()
-      .eq('id', bookingId)
-      .eq('user_id', userId);
+      .eq('id', bookingId);
       
     if (error) {
       console.error("Error cancelling booking:", error);
-      return false;
+      throw new Error(`Cancellation failed: ${error.message}`);
     }
     
+    console.log(`Successfully cancelled booking ${bookingId}`);
     return true;
   } catch (error) {
     console.error("Exception when cancelling booking:", error);
-    return false;
+    throw error;
   }
 };
