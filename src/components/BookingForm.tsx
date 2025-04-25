@@ -114,8 +114,9 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
       }
     } catch (error) {
       console.error("Error booking room:", error);
-      setErrorMessage(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      toast.error("Failed to book room. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setErrorMessage(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

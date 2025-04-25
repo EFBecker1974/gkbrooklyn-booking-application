@@ -2,7 +2,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { BookingRequest, BookingCreateRequest } from "@/types/booking.types";
 import { getUserIdFromEmail } from "@/utils/user-utils";
-import { toast } from "sonner";
 
 /**
  * Create a booking directly in the database
@@ -15,7 +14,7 @@ export const createBooking = async (bookingData: BookingCreateRequest): Promise<
     const userId = await getUserIdFromEmail(userEmail);
     if (!userId) {
       console.error("Could not find user ID for email:", userEmail);
-      return null;
+      throw new Error("User not found");
     }
 
     console.log("Creating booking with data:", {
@@ -42,6 +41,10 @@ export const createBooking = async (bookingData: BookingCreateRequest): Promise<
 
     if (error) {
       console.error("Error creating booking:", error);
+      // Check for overlap error specifically
+      if (error.message.includes('Booking overlaps')) {
+        throw new Error("This time slot is already booked. Please choose a different time.");
+      }
       throw new Error(`Booking failed: ${error.message}`);
     }
 
