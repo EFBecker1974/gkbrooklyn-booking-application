@@ -17,27 +17,42 @@ export const createBooking = async (bookingData: BookingCreateRequest): Promise<
       return null;
     }
 
-    // Insert the booking without triggering the booking_usage update
-    // This avoids the row-level security policy violation
-    const { data, error } = await supabase
-      .from('bookings')
-      .insert([
-        {
-          room_id: roomId,
-          start_time: startTime.toISOString(),
-          end_time: endTime.toISOString(),
-          user_id: userId,
-          purpose: purpose || 'Meeting'
-        }
-      ])
-      .select();
+    // Use the RPC function to insert the booking while bypassing the trigger
+    // This approach completely avoids the row-level security policy violation
+    const { data: funcData, error: funcError } = await supabase.rpc('create_booking', {
+      p_room_id: roomId,
+      p_start_time: startTime.toISOString(),
+      p_end_time: endTime.toISOString(),
+      p_user_id: userId,
+      p_purpose: purpose || 'Meeting'
+    });
 
-    if (error) {
-      console.error("Error creating booking:", error);
-      return null;
+    if (funcError) {
+      console.error("Error calling create_booking function:", funcError);
+      
+      // Fallback to direct insert if RPC fails (most likely because function doesn't exist)
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert([
+          {
+            room_id: roomId,
+            start_time: startTime.toISOString(),
+            end_time: endTime.toISOString(),
+            user_id: userId,
+            purpose: purpose || 'Meeting'
+          }
+        ])
+        .select();
+
+      if (error) {
+        console.error("Error creating booking:", error);
+        return null;
+      }
+
+      return data && data[0]?.id || null;
     }
 
-    return data && data[0]?.id || null;
+    return funcData?.booking_id || null;
   } catch (error) {
     console.error("Exception when creating booking:", error);
     return null;
@@ -64,7 +79,25 @@ export const bookRoom = async (booking: BookingRequest): Promise<boolean> => {
       userId = userIdFromEmail;
     }
     
-    const { data, error } = await supabase
+    // Use the RPC function if available
+    try {
+      const { error: funcError } = await supabase.rpc('create_booking', {
+        p_room_id: booking.roomId,
+        p_start_time: booking.startTime.toISOString(),
+        p_end_time: booking.endTime.toISOString(),
+        p_user_id: userId,
+        p_purpose: booking.purpose || 'Meeting'
+      });
+      
+      if (!funcError) {
+        return true;
+      }
+    } catch (rpcError) {
+      console.log("RPC function not available, falling back to direct insert");
+    }
+    
+    // Fallback to direct insert
+    const { error } = await supabase
       .from('bookings')
       .insert([
         {

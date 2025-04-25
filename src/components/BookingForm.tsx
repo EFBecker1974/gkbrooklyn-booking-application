@@ -12,6 +12,7 @@ import { format, addHours, setHours, setMinutes, isBefore, startOfDay } from "da
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/components/AuthProvider";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface BookingFormProps {
   roomId: string;
@@ -32,6 +33,7 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
   const [duration, setDuration] = useState<DurationType>("1");
   const [purpose, setPurpose] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,6 +44,7 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
       return;
     }
     
+    setErrorMessage(null);
     setIsSubmitting(true);
     
     try {
@@ -85,6 +88,13 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
           endTime = addHours(startTime, 1);
       }
       
+      console.log("Attempting to book room", {
+        roomId,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+        userEmail: user.email
+      });
+      
       // Use createBooking instead of bookRoom to handle user email conversion to UUID
       const bookingId = await createBooking({
         roomId,
@@ -98,10 +108,12 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
         toast.success("Room booked successfully");
         onSuccess();
       } else {
+        setErrorMessage("Failed to book room. Please try again.");
         toast.error("Failed to book room. Please try again.");
       }
     } catch (error) {
       console.error("Error booking room:", error);
+      setErrorMessage("An unexpected error occurred. Please try again.");
       toast.error("Failed to book room. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -125,6 +137,12 @@ export const BookingForm = ({ roomId, onSuccess }: BookingFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {errorMessage && (
+        <Alert variant="destructive">
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
+      
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="date">Date</Label>
